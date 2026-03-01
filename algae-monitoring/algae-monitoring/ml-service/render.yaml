@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: phycosense-ml-service
+    env: python
+    region: oregon # Choose: oregon, frankfurt, singapore
+    plan: free # or starter ($7/month)
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -b 0.0.0.0:$PORT ml_service:app --timeout 120
+    healthCheckPath: /health
