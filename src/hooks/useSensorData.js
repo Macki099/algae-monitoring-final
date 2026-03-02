@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-const API_URL = 'http://localhost:5000/api/sensor-data';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/sensor-data';
 
 export const useSensorData = (deviceId) => {
   const [sensorData, setSensorData] = useState({
