@@ -36,6 +36,13 @@ const sensorDataSchema = new mongoose.Schema({
     required: false,
     default: 0
   },
+  probioticLevel: {
+    type: Number,
+    required: false,
+    default: null,
+    min: 0,
+    max: 100
+  },
   risk: {
     type: String,
     enum: ['Normal', 'Moderate', 'High'],

@@ -45,6 +45,7 @@ bool isProvisioned = false;
 #define ONE_WIRE_BUS 4      // DS18B20 Data Pin
 #define TURBIDITY_PIN 16     // Turbidity Analog Pin
 #define BATTERY_PIN 35       // Battery Voltage Monitor (ADC1_CH7)
+#define PROBIOTIC_LEVEL_PIN 34  // Water Level Sensor for Probiotic Chamber (ADC1_CH6)
 // --- Objects ---
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
@@ -71,6 +72,10 @@ float lastTemperature = 25.0;
 float turbidityVoltage = 0.0;
 float turbidityNTU = 0.0;
 int turbidityRaw = 0;
+
+// --- Probiotic Level Variables ---
+float probioticLevelVoltage = 0.0;
+int probioticLevelPercentage = 0;
 
 // Turbidity Calibration (Default values)
 float clearWaterVoltage = 2.8;   
@@ -126,6 +131,26 @@ float readTurbidityAvg()
 float map_float(float x, float in_min, float in_max, float out_min, float out_max)
 {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+// Read Probiotic Chamber Water Level
+float readProbioticLevel()
+{
+    int rawValue = analogRead(PROBIOTIC_LEVEL_PIN);
+    float voltage = (rawValue / 4095.0) * 3.3;  // Convert to voltage
+    
+    // Water level sensors typically output:
+    // - Min voltage (~0.5V) = Empty (0%)
+    // - Max voltage (~2.5V) = Full (100%)
+    // Adjust these values based on your specific sensor calibration
+    float minVoltage = 0.5;
+    float maxVoltage = 2.5;
+    
+    // Map voltage to percentage
+    float percentage = ((voltage - minVoltage) / (maxVoltage - minVoltage)) * 100.0;
+    percentage = constrain(percentage, 0, 100);
+    
+    return percentage;
 }
 
 // Read Battery Voltage with averaging
@@ -237,6 +262,7 @@ void sendDataToServer(float temp, float pH, float ecVal, float turbidity) {
     doc["ec"] = ecVal * 1000;  // Convert ms/cm to µS/cm (9.7 ms/cm → 9700 µS/cm)
     doc["turbidity"] = turbidity;
     doc["dissolvedOxygen"] = 8.5; // Default
+    doc["probioticLevel"] = probioticLevelPercentage;
     
     // Battery/Power data
     doc["batteryVoltage"] = round(batteryVoltage * 100) / 100.0;
@@ -302,6 +328,9 @@ void setup()
     analogReadResolution(12);
     analogSetAttenuation(ADC_11db);
     
+    // Init Probiotic Level Sensor
+    pinMode(PROBIOTIC_LEVEL_PIN, INPUT);
+    
     // Init Battery Monitoring
     pinMode(BATTERY_PIN, INPUT);
     
@@ -347,6 +376,9 @@ void loop()
         turbidityRaw = analogRead(TURBIDITY_PIN);
         turbidityNTU = map_float(turbidityVoltage, clearWaterVoltage, turbidWaterVoltage, 0, knownTurbidNTU);
         turbidityNTU = constrain(turbidityNTU, 0, 3000);
+        
+        // 2b. Update Probiotic Level
+        probioticLevelPercentage = readProbioticLevel();
         
         // 2b. Update Battery Status
         batteryVoltage = readBatteryVoltage();
@@ -446,6 +478,13 @@ void loop()
             Serial.print(turbidityNTU, 1); 
             Serial.print(F(" NTU (V:")); Serial.print(turbidityVoltage); Serial.println(")");
             
+            Serial.print(F("Probiotic: "));
+            Serial.print(probioticLevelPercentage);
+            Serial.print(F("% "));
+            if (probioticLevelPercentage < 20) Serial.println(F("(REFILL NOW!)"));
+            else if (probioticLevelPercentage < 50) Serial.println(F("(Low)"));
+            else Serial.println(F("(OK)"));
+            
             Serial.print(F("Battery:   "));
             if (isUSBPowered) {
                 Serial.println(F("USB Powered"));
@@ -474,7 +513,7 @@ void loop()
         if (!ecPhCalibrationActive && !turbidityCalibrationMode)
         {
             // Reuse the SAME readings from Task 3 display
-            // No need to read again - ecValue and phValue are already freshca
+            // No need to read again - ecValue and phValue are already fresh
             
             // Send to dashboard - this will send the EXACT value shown in the report
             sendDataToServer(temperature, phValue, ecValue, turbidityNTU);

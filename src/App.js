@@ -96,6 +96,18 @@ const App = () => {
               type="chart"
             />
             
+            <ParameterCard
+              title="Probiotic Chamber"
+              icon="droplet"
+              value={sensorData.probioticLevel}
+              unit="%"
+              data={dataHistory.probioticLevel}
+              riskLevel={riskLevels.probioticLevel}
+              type="gauge"
+              min={0}
+              max={100}
+            />
+            
             <RiskAssessment
               overallRisk={overallRisk}
               riskLevels={riskLevels}

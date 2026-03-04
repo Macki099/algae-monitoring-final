@@ -8,7 +8,8 @@ export const useSensorData = (deviceId) => {
     dissolvedOxygen: 3.8,
     ph: 8.7,
     electricalConductivity: 850,
-    turbidity: 35.2
+    turbidity: 35.2,
+    probioticLevel: 75
   });
 
   const [mlPrediction, setMlPrediction] = useState(null);
@@ -18,7 +19,8 @@ export const useSensorData = (deviceId) => {
     dissolvedOxygen: [],
     ph: [],
     electricalConductivity: [],
-    turbidity: []
+    turbidity: [],
+    probioticLevel: []
   });
 
   const [isConnected, setIsConnected] = useState(true);
@@ -38,6 +40,7 @@ export const useSensorData = (deviceId) => {
           ph: data.ph,
           ec: data.electricalConductivity,
           turbidity: data.turbidity,
+          probioticLevel: data.probioticLevel,
           riskLevel: riskLevel
         }),
       });
@@ -68,7 +71,8 @@ export const useSensorData = (deviceId) => {
             dissolvedOxygen: [],
             ph: [],
             electricalConductivity: [],
-            turbidity: []
+            turbidity: [],
+            probioticLevel: []
           };
 
           data.reverse().forEach(entry => {
@@ -77,6 +81,7 @@ export const useSensorData = (deviceId) => {
             history.ph.push(entry.ph || 7);
             history.electricalConductivity.push(entry.ec || entry.electricalConductivity || 0);
             history.turbidity.push(entry.turbidity || 0);
+            history.probioticLevel.push(entry.probioticLevel || 0);
           });
 
           setDataHistory(history);
@@ -88,7 +93,8 @@ export const useSensorData = (deviceId) => {
             dissolvedOxygen: latest.dissolvedOxygen || 0,
             ph: latest.ph || 7,
             electricalConductivity: latest.ec || latest.electricalConductivity || 0,
-            turbidity: latest.turbidity || 0
+            turbidity: latest.turbidity || 0,
+            probioticLevel: latest.probioticLevel || 0
           });
           
           // Extract ML prediction if available
@@ -128,7 +134,8 @@ export const useSensorData = (deviceId) => {
       dissolvedOxygen: 0.3,       // mg/L
       ph: 0.1,                    // pH units
       electricalConductivity: 25, // µS/cm
-      turbidity: 2.0              // NTU
+      turbidity: 2.0,             // NTU
+      probioticLevel: 1.5         // % level
     };
 
     const bounds = {
@@ -136,7 +143,8 @@ export const useSensorData = (deviceId) => {
       dissolvedOxygen: { min: 1, max: 12 },     // mg/L
       ph: { min: 6, max: 10 },                  // pH units
       electricalConductivity: { min: 200, max: 1200 },  // µS/cm
-      turbidity: { min: 0, max: 80 }            // NTU
+      turbidity: { min: 0, max: 80 },           // NTU
+      probioticLevel: { min: 0, max: 100 }      // % level
     };
 
     // Occasionally introduce more dramatic changes to trigger risk conditions

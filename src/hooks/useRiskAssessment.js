@@ -78,6 +78,16 @@ export const useRiskAssessment = (sensorData) => {
       risks.turbidity = 'high';
     }
     
+    // Probiotic Level: Lower = Higher Risk (inverted logic)
+    const probioticLevel = sensorData.probioticLevel || 100;
+    if (probioticLevel > 50) {
+      risks.probioticLevel = 'normal';
+    } else if (probioticLevel > 20) {
+      risks.probioticLevel = 'moderate';
+    } else {
+      risks.probioticLevel = 'high';
+    }
+    
     return risks;
   }, [sensorData]);
 
