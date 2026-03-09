@@ -9,6 +9,7 @@
 #include <ArduinoJson.h>
 #include <WiFiManager.h>  // https://github.com/tzapu/WiFiManager
 #include <Preferences.h>
+#include "lwip/dns.h"   // for explicit DNS fix in AP+STA mode
 
 // --- WiFi Provisioning Configuration ---
 Preferences preferences;
@@ -34,7 +35,9 @@ const unsigned long KEY_PORTAL_DURATION = 600000; // 10 minutes
 
 // Registration retry (when key portal is open but registration failed)
 unsigned long lastRegistrationAttempt = 0;
-const unsigned long REGISTRATION_RETRY_INTERVAL = 10000; // retry every 10 seconds
+const unsigned long REGISTRATION_RETRY_INTERVAL = 5000; // retry every 5 seconds
+int g_regAttemptCount = 0;
+String g_lastRegError = "Waiting...";
 
 // Production server URL (customer doesn't need to enter this)
 const String PRODUCTION_SERVER = "https://algae-monitoring-final-production.up.railway.app/api/sensor-data";
@@ -309,8 +312,9 @@ bool registerDevice() {
         http.end();
         return true;
     } else {
-        Serial.print("⚠ Registration failed (will retry): ");
-        Serial.println(http.errorToString(httpResponseCode));
+        g_lastRegError = "HTTP error: " + http.errorToString(httpResponseCode) + " (" + String(httpResponseCode) + ")";
+        Serial.print("\u26a0 Registration failed (will retry): ");
+        Serial.println(g_lastRegError);
         http.end();
         return false;
     }
@@ -326,6 +330,15 @@ void startKeyPortal() {
     WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0));
     String apName = "PhycoSense-" + g_deviceId;
     WiFi.softAP(apName.c_str(), "phyco123");
+
+    // AP+STA mode can break DNS resolution — force Google DNS on the STA interface
+    delay(200);
+    ip_addr_t dnsServer;
+    IP4_ADDR(&dnsServer.u_addr.ip4, 8, 8, 8, 8);
+    dns_setserver(0, &dnsServer);
+    IP4_ADDR(&dnsServer.u_addr.ip4, 8, 8, 4, 4);
+    dns_setserver(1, &dnsServer);
+    Serial.println("DNS set to 8.8.8.8 for AP+STA mode");
 
     keyServer.on("/", HTTP_GET, []() {
         String html = "<!DOCTYPE html><html><head>";
@@ -359,10 +372,11 @@ void startKeyPortal() {
         html += "</style></head><body><div class='card'>";
 
         if (g_accessKey.length() == 0) {
-            // Registration still in progress
+            // Registration still in progress — show error and attempt count
             html += "<div class='check'>&#9203;</div>";
             html += "<div class='title'>Almost Ready...</div>";
-            html += "<div class='waiting'>Registering your device with the server.<br>This page will refresh automatically.</div>";
+            html += "<div class='waiting'>Connecting to server...<br>Attempt " + String(g_regAttemptCount) + "</div>";
+            html += "<div style='background:rgba(255,100,100,0.1);border-radius:8px;padding:10px;margin:12px 0;font-size:0.8rem;color:#ef9a9a;word-break:break-all'>" + g_lastRegError + "</div>";
             html += "<div class='device'>Device: " + g_deviceName + " (" + g_deviceId + ")</div>";
         } else {
             html += "<div class='check'>&#10003;</div>";
@@ -730,7 +744,10 @@ void loop()
         if (g_accessKey.length() == 0 && WiFi.status() == WL_CONNECTED) {
             if (millis() - lastRegistrationAttempt > REGISTRATION_RETRY_INTERVAL) {
                 lastRegistrationAttempt = millis();
-                Serial.println("Retrying device registration...");
+                g_regAttemptCount++;
+                Serial.print("Retrying device registration (attempt ");
+                Serial.print(g_regAttemptCount);
+                Serial.println(")");
                 registerDevice();
             }
         }
