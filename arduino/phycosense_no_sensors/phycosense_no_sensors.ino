@@ -5,6 +5,7 @@
 
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <NetworkClientSecure.h>
 #include <ArduinoJson.h>
 #include <WiFiManager.h>  // https://github.com/tzapu/WiFiManager
 #include <Preferences.h>
@@ -30,6 +31,10 @@ WebServer keyServer(80);
 bool keyPortalRunning = false;
 unsigned long keyPortalStartTime = 0;
 const unsigned long KEY_PORTAL_DURATION = 600000; // 10 minutes
+
+// Registration retry (when key portal is open but registration failed)
+unsigned long lastRegistrationAttempt = 0;
+const unsigned long REGISTRATION_RETRY_INTERVAL = 10000; // retry every 10 seconds
 
 // Production server URL (customer doesn't need to enter this)
 const String PRODUCTION_SERVER = "https://algae-monitoring-final-production.up.railway.app/api/sensor-data";
@@ -155,15 +160,15 @@ void startProvisioningMode() {
     WiFiManagerParameter custom_name("name", "Pond / Device Name", g_deviceId.c_str(), 40,
         "placeholder=\"e.g. Main Pond\"");
 
-    WiFiManagerParameter custom_html(
+    String htmlContent =
         "<br/>"
         "<div style='background:#e8f5e9;border-radius:8px;padding:14px;margin:10px 0;font-size:14px;color:#2e7d32'>"
         "<b>PhycoSense Setup</b><br/>"
         "Enter your WiFi password and give your device a name.<br/>"
         "After saving, reconnect to <b>PhycoSense-" + g_deviceId + "</b> and open "
         "<b>192.168.4.1</b> to get your dashboard access key."
-        "</div>"
-    );
+        "</div>";
+    WiFiManagerParameter custom_html(htmlContent.c_str());
 
     wm.addParameter(&custom_html);
     wm.addParameter(&custom_name);
@@ -191,6 +196,13 @@ void startProvisioningMode() {
     Serial.print("   Server URL:  "); Serial.println(g_serverUrl);
 
     isProvisioned = true;
+
+    // WiFiManager already connected us — register immediately while connection is fresh
+    Serial.println("Registering device with server...");
+    registerDevice();
+
+    // Always open the key portal so customer can reconnect and see their key
+    startKeyPortal();
 }
 
 // Check if provision button is held (for factory reset)
@@ -239,9 +251,11 @@ bool registerDevice() {
     Serial.print("Registering device: ");
     Serial.println(registerUrl);
     
-    http.begin(registerUrl);
+    NetworkClientSecure secureClient;
+    secureClient.setInsecure(); // Skip cert verification (no CA bundle on device)
+    http.begin(secureClient, registerUrl);
     http.addHeader("Content-Type", "application/json");
-    http.setTimeout(10000);
+    http.setTimeout(15000);
     
     int httpResponseCode = http.POST(jsonString);
     
@@ -311,6 +325,10 @@ void startKeyPortal() {
         html += "<meta name='viewport' content='width=device-width,initial-scale=1'>";
         html += "<meta charset='UTF-8'>";
         html += "<title>PhycoSense - Your Access Key</title>";
+        if (g_accessKey.length() == 0) {
+            // Auto-refresh every 4 seconds while waiting for registration
+            html += "<meta http-equiv='refresh' content='4'>";
+        }
         html += "<style>";
         html += "*{box-sizing:border-box;margin:0;padding:0}";
         html += "body{font-family:system-ui,sans-serif;background:#1a1a2e;color:#fff;";
@@ -330,22 +348,32 @@ void startKeyPortal() {
         html += ".steps p{color:#b0bec5;font-size:0.9rem;line-height:1.8;margin:0}";
         html += ".steps b{color:#4dd0e1}";
         html += ".device{color:#37474f;font-size:0.75rem;margin-top:20px}";
+        html += ".waiting{color:#ffd54f;font-size:1rem;padding:20px 0}";
         html += "</style></head><body><div class='card'>";
-        html += "<div class='check'>&#10003;</div>";
-        html += "<div class='title'>Setup Complete!</div>";
-        html += "<div class='sub'>Your PhycoSense device is now connected</div>";
-        html += "<div class='key-box'>";
-        html += "<div class='key-label'>Dashboard Access Key</div>";
-        html += "<div class='key' id='key'>" + g_accessKey + "</div>";
-        html += "<button class='copy-btn' onclick='navigator.clipboard.writeText(\"" + g_accessKey + "\").then(()=>{this.textContent=\"Copied!\";setTimeout(()=>{this.textContent=\"Copy Key\"},2000)})'>Copy Key</button>";
-        html += "</div>";
-        html += "<div class='steps'><p>";
-        html += "<b>1.</b> Write down or copy the key above<br>";
-        html += "<b>2.</b> Reconnect your phone to your home WiFi<br>";
-        html += "<b>3.</b> Open <b>phycosense.app</b> in your browser<br>";
-        html += "<b>4.</b> Enter the key to view your pond dashboard";
-        html += "</p></div>";
-        html += "<div class='device'>Device: " + g_deviceName + " (" + g_deviceId + ")</div>";
+
+        if (g_accessKey.length() == 0) {
+            // Registration still in progress
+            html += "<div class='check'>&#9203;</div>";
+            html += "<div class='title'>Almost Ready...</div>";
+            html += "<div class='waiting'>Registering your device with the server.<br>This page will refresh automatically.</div>";
+            html += "<div class='device'>Device: " + g_deviceName + " (" + g_deviceId + ")</div>";
+        } else {
+            html += "<div class='check'>&#10003;</div>";
+            html += "<div class='title'>Setup Complete!</div>";
+            html += "<div class='sub'>Your PhycoSense device is now connected</div>";
+            html += "<div class='key-box'>";
+            html += "<div class='key-label'>Dashboard Access Key</div>";
+            html += "<div class='key' id='key'>" + g_accessKey + "</div>";
+            html += "<button class='copy-btn' onclick='navigator.clipboard.writeText(\"" + g_accessKey + "\").then(()=>{this.textContent=\"Copied!\";setTimeout(()=>{this.textContent=\"Copy Key\"},2000)})'>Copy Key</button>";
+            html += "</div>";
+            html += "<div class='steps'><p>";
+            html += "<b>1.</b> Write down or copy the key above<br>";
+            html += "<b>2.</b> Reconnect your phone to your home WiFi<br>";
+            html += "<b>3.</b> Open <b>phycosense.app</b> in your browser<br>";
+            html += "<b>4.</b> Enter the key to view your pond dashboard";
+            html += "</p></div>";
+            html += "<div class='device'>Device: " + g_deviceName + " (" + g_deviceId + ")</div>";
+        }
         html += "</div></body></html>";
         keyServer.send(200, "text/html", html);
     });
@@ -463,7 +491,9 @@ void sendDataToServer() {
     Serial.println(jsonString);
     
     // Try primary server
-    http.begin(g_serverUrl.c_str());
+    NetworkClientSecure dataClient;
+    dataClient.setInsecure();
+    http.begin(dataClient, g_serverUrl.c_str());
     http.addHeader("Content-Type", "application/json");
     http.setTimeout(10000);
     
@@ -518,10 +548,12 @@ void setup()
     
     // Try to load saved configuration
     isProvisioned = loadConfiguration();
-    
+    bool justProvisioned = false;
+
     if (!isProvisioned) {
         Serial.println("⚠ No configuration found - entering provisioning mode\n");
-        startProvisioningMode();
+        startProvisioningMode(); // also calls registerDevice() + startKeyPortal() internally
+        justProvisioned = true;
     } else {
         Serial.println("✓ Configuration loaded from memory");
         Serial.print("  Device Name: ");
@@ -554,13 +586,12 @@ void setup()
     }
 
     // Connect to WiFi (if provisioned)
-    if (isProvisioned) {
+    // Skip if we just provisioned — WiFiManager already connected us and startKeyPortal() is running
+    if (isProvisioned && !justProvisioned) {
         connectWiFi();
-        
-        // If we have a saved access key, re-open hotspot so customer can retrieve key
-        if (g_accessKey.length() > 0) {
-            startKeyPortal();
-        }
+
+        // Re-open the key portal on every reboot so customer can always retrieve their key
+        startKeyPortal();
     }
     
     Serial.println(F("\n=== Commands ==="));
@@ -687,6 +718,16 @@ void loop()
     // Handle key portal (AP hotspot at 192.168.4.1)
     if (keyPortalRunning) {
         keyServer.handleClient();
+
+        // Retry registration if key not yet received
+        if (g_accessKey.length() == 0 && WiFi.status() == WL_CONNECTED) {
+            if (millis() - lastRegistrationAttempt > REGISTRATION_RETRY_INTERVAL) {
+                lastRegistrationAttempt = millis();
+                Serial.println("Retrying device registration...");
+                registerDevice();
+            }
+        }
+
         // Auto-disable AP after 10 minutes
         if (millis() - keyPortalStartTime > KEY_PORTAL_DURATION) {
             WiFi.softAPdisconnect(true);
