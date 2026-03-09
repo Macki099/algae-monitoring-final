@@ -34,7 +34,7 @@ const unsigned long KEY_PORTAL_DURATION = 600000; // 10 minutes
 
 // Registration retry (when key portal is open but registration failed)
 unsigned long lastRegistrationAttempt = 0;
-const unsigned long REGISTRATION_RETRY_INTERVAL = 5000; // retry every 5 seconds
+const unsigned long REGISTRATION_RETRY_INTERVAL = 15000; // retry every 15 seconds
 int g_regAttemptCount = 0;
 String g_lastRegError = "Waiting...";
 
@@ -199,20 +199,7 @@ void startProvisioningMode() {
 
     isProvisioned = true;
 
-    // Retry registration in pure STA mode (before AP opens, so HTTPS works reliably)
-    Serial.println("Registering device with server...");
-    for (int attempt = 1; attempt <= 8 && g_accessKey.length() == 0; attempt++) {
-        g_regAttemptCount = attempt;
-        g_lastRegError = "Attempt " + String(attempt) + " of 8 - connecting...";
-        Serial.printf("  Registration attempt %d/8\n", attempt);
-        registerDevice();
-        if (g_accessKey.length() == 0 && attempt < 8) {
-            Serial.println("  Waiting 5s before retry...");
-            delay(5000);
-        }
-    }
-
-    // Open AP to show key page (AP-only, no internet needed - key already saved)
+    // Open the key portal hotspot immediately — registration retries happen in loop()
     startKeyPortal();
 }
 
@@ -333,20 +320,23 @@ bool registerDevice() {
 void startKeyPortal() {
     if (keyPortalRunning) return;
 
-    if (g_accessKey.length() > 0) {
-        // Key already known: use AP+STA so device can keep sending data while page is visible
-        WiFi.mode(WIFI_AP_STA);
-    } else {
-        // Key not yet received: disconnect STA so AP has full radio attention
-        // (AP+STA mode blocks HTTPS; all registration attempts already used STA above)
-        WiFi.disconnect(true);
-        delay(200);
-        WiFi.mode(WIFI_AP);
-    }
-
+    // Switch to AP+STA — hotspot opens AND device keeps its WiFi connection
+    WiFi.mode(WIFI_AP_STA);
+    delay(100);
     WiFi.softAPConfig(IPAddress(192,168,4,1), IPAddress(192,168,4,1), IPAddress(255,255,255,0));
     String apName = "PhycoSense-" + g_deviceId;
     WiFi.softAP(apName.c_str(), "phyco123");
+    delay(200);
+    // Re-establish STA connection after mode switch so outgoing HTTPS still works
+    WiFi.begin();
+    Serial.println("AP+STA started, reconnecting STA...");
+
+    // /status — JSON endpoint polled by the key page (avoids full page reload)
+    keyServer.on("/status", HTTP_GET, []() {
+        String json = "{\"key\":\"" + g_accessKey + "\",\"attempt\":" + String(g_regAttemptCount) + ",\"error\":\"" + g_lastRegError + "\"}";
+        keyServer.sendHeader("Access-Control-Allow-Origin", "*");
+        keyServer.send(200, "application/json", json);
+    });
 
     keyServer.on("/", HTTP_GET, []() {
         String html = "<!DOCTYPE html><html><head>";
@@ -380,11 +370,20 @@ void startKeyPortal() {
         html += "</style></head><body><div class='card'>";
 
         if (g_accessKey.length() == 0) {
-            // Registration still in progress — show error and attempt count
+            // Waiting for registration — poll /status every 3 seconds via JS instead of full reload
+            html += "<script>";
+            html += "setInterval(function(){";
+            html += "fetch('/status').then(r=>r.json()).then(d=>{";
+            html += "if(d.key&&d.key.length>0){location.reload();}";
+            html += "document.getElementById('attempt').textContent='Attempt '+d.attempt;";
+            html += "document.getElementById('err').textContent=d.error;";
+            html += "});},3000);";
+            html += "</script>";
             html += "<div class='check'>&#9203;</div>";
             html += "<div class='title'>Almost Ready...</div>";
-            html += "<div class='waiting'>Connecting to server...<br>Attempt " + String(g_regAttemptCount) + "</div>";
-            html += "<div style='background:rgba(255,100,100,0.1);border-radius:8px;padding:10px;margin:12px 0;font-size:0.8rem;color:#ef9a9a;word-break:break-all'>" + g_lastRegError + "</div>";
+            html += "<div class='waiting'>Connecting to server...</div>";
+            html += "<div id='attempt' style='color:#90caf9;font-size:0.9rem;margin:8px 0'>Attempt " + String(g_regAttemptCount) + "</div>";
+            html += "<div id='err' style='background:rgba(255,100,100,0.1);border-radius:8px;padding:10px;margin:12px 0;font-size:0.8rem;color:#ef9a9a;word-break:break-all'>" + g_lastRegError + "</div>";
             html += "<div class='device'>Device: " + g_deviceName + " (" + g_deviceId + ")</div>";
         } else {
             html += "<div class='check'>&#10003;</div>";
@@ -617,19 +616,8 @@ void setup()
     // Connect to WiFi (if provisioned)
     // Skip if we just provisioned — WiFiManager already connected us and startKeyPortal() is running
     if (isProvisioned && !justProvisioned) {
-        connectWiFi(); // pure STA mode
-
-        // Recover key via 409 if it was lost (e.g. re-flash without erase)
-        if (g_accessKey.length() == 0) {
-            Serial.println("No saved key — trying to recover from server...");
-            for (int attempt = 1; attempt <= 5 && g_accessKey.length() == 0; attempt++) {
-                g_regAttemptCount = attempt;
-                registerDevice();
-                if (g_accessKey.length() == 0 && attempt < 5) delay(5000);
-            }
-        }
-
-        // Open key portal (AP+STA since key is known, or AP-only if still missing)
+        connectWiFi();
+        // Open key portal (registration retries happen in loop())
         startKeyPortal();
     }
     
@@ -758,13 +746,23 @@ void loop()
     if (keyPortalRunning) {
         keyServer.handleClient();
 
+        // Retry registration every 15s until key is received
+        if (g_accessKey.length() == 0 && WiFi.status() == WL_CONNECTED) {
+            if (millis() - lastRegistrationAttempt > REGISTRATION_RETRY_INTERVAL) {
+                lastRegistrationAttempt = millis();
+                g_regAttemptCount++;
+                Serial.printf("Registration attempt %d...\n", g_regAttemptCount);
+                registerDevice();
+            }
+        }
+
         // Auto-disable AP after 10 minutes, then reconnect WiFi for normal operation
         if (millis() - keyPortalStartTime > KEY_PORTAL_DURATION) {
             keyServer.close();
             WiFi.softAPdisconnect(true);
+            WiFi.mode(WIFI_STA);
             keyPortalRunning = false;
-            Serial.println("Key portal closed. Reconnecting to WiFi...");
-            connectWiFi();
+            Serial.println("Key portal closed. Operating normally.");
         }
     }
 }
