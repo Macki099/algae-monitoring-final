@@ -56,7 +56,13 @@ const LandingPage = ({ onAuthenticated }) => {
         body: JSON.stringify({ accessKey: trimmedKey })
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        setError('Server returned an unexpected response. Please try again.');
+        return;
+      }
 
       if (response.ok && data.authenticated) {
         // Save key to localStorage
@@ -70,7 +76,7 @@ const LandingPage = ({ onAuthenticated }) => {
         setError(data.message || 'Invalid access key. Check your key and try again.');
       }
     } catch (err) {
-      setError('Unable to connect to server. Please try again later.');
+      setError('Cannot reach the server. Check your internet connection or try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +96,13 @@ const LandingPage = ({ onAuthenticated }) => {
         body: JSON.stringify({ accessKeys: savedKeys })
       });
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        setError('Server returned an unexpected response. Please enter your key manually.');
+        return;
+      }
 
       if (response.ok && data.authenticated) {
         onAuthenticated(data.devices);
@@ -100,7 +112,7 @@ const LandingPage = ({ onAuthenticated }) => {
         setError('Saved session expired. Please enter your access key again.');
       }
     } catch (err) {
-      setError('Unable to connect to server. Please try again later.');
+      setError('Cannot reach the server. Check your internet connection or try again later.');
     } finally {
       setIsLoading(false);
     }
