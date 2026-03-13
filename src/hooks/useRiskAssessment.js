@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 // Risk thresholds for algae bloom prediction (based on Random Forest algorithm)
-const THRESHOLDS = {
+const DEFAULT_THRESHOLDS = {
   temperature: {
     normal: { max: 20 },      // Normal: < 20°C
     moderate: { max: 25 },    // Moderate: 20-25°C, High: > 25°C
@@ -24,8 +24,50 @@ const THRESHOLDS = {
   }
 };
 
-export const useRiskAssessment = (sensorData) => {
+const getSensitivityScale = (sensitivity) => {
+  switch (sensitivity) {
+    case 'strict':
+      return 1.1;
+    case 'relaxed':
+      return 0.9;
+    default:
+      return 1;
+  }
+};
+
+const buildThresholds = (overrides = {}) => {
+  const scale = getSensitivityScale(overrides.sensitivity);
+
+  const scaleMax = (value) => value * scale;
+  const scaleMin = (value) => value * scale;
+
+  return {
+    temperature: {
+      normal: { max: scaleMax(overrides.temperatureNormalMax ?? DEFAULT_THRESHOLDS.temperature.normal.max) },
+      moderate: { max: scaleMax(overrides.temperatureModerateMax ?? DEFAULT_THRESHOLDS.temperature.moderate.max) }
+    },
+    dissolvedOxygen: {
+      normal: { min: scaleMin(overrides.dissolvedOxygenNormalMin ?? DEFAULT_THRESHOLDS.dissolvedOxygen.normal.min) },
+      moderate: { min: scaleMin(overrides.dissolvedOxygenModerateMin ?? DEFAULT_THRESHOLDS.dissolvedOxygen.moderate.min) }
+    },
+    ph: {
+      normal: { max: scaleMax(overrides.phNormalMax ?? DEFAULT_THRESHOLDS.ph.normal.max) },
+      moderate: { max: scaleMax(overrides.phModerateMax ?? DEFAULT_THRESHOLDS.ph.moderate.max) }
+    },
+    electricalConductivity: {
+      normal: { max: scaleMax(overrides.electricalConductivityNormalMax ?? DEFAULT_THRESHOLDS.electricalConductivity.normal.max) },
+      moderate: { max: scaleMax(overrides.electricalConductivityModerateMax ?? DEFAULT_THRESHOLDS.electricalConductivity.moderate.max) }
+    },
+    turbidity: {
+      normal: { max: scaleMax(overrides.turbidityNormalMax ?? DEFAULT_THRESHOLDS.turbidity.normal.max) },
+      moderate: { max: scaleMax(overrides.turbidityModerateMax ?? DEFAULT_THRESHOLDS.turbidity.moderate.max) }
+    }
+  };
+};
+
+export const useRiskAssessment = (sensorData, overrides = {}) => {
   const riskLevels = useMemo(() => {
+    const THRESHOLDS = buildThresholds(overrides);
     const risks = {};
     
     // Temperature: Higher = Higher Risk
@@ -89,7 +131,7 @@ export const useRiskAssessment = (sensorData) => {
     }
     
     return risks;
-  }, [sensorData]);
+  }, [sensorData, overrides]);
 
   const overallRisk = useMemo(() => {
     const riskValues = Object.values(riskLevels);

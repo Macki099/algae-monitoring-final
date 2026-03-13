@@ -3,7 +3,12 @@ import Icon from './Icon';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/sensor-data';
 
-const DeviceSelector = ({ selectedDevice, onDeviceChange, allowedDevices }) => {
+const DeviceSelector = ({
+  selectedDevice,
+  onDeviceChange,
+  allowedDevices,
+  deviceAliases
+}) => {
   const [devices, setDevices] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -18,6 +23,16 @@ const DeviceSelector = ({ selectedDevice, onDeviceChange, allowedDevices }) => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    if (!deviceAliases || devices.length === 0) return;
+    setDevices((prev) =>
+      prev.map((device) => {
+        const alias = deviceAliases?.[device.deviceId];
+        return alias ? { ...device, deviceName: alias } : device;
+      })
+    );
+  }, [deviceAliases, devices.length]);
+
   const fetchDevices = async () => {
     try {
       const response = await fetch(`${API_URL}/devices`);
@@ -29,11 +44,16 @@ const DeviceSelector = ({ selectedDevice, onDeviceChange, allowedDevices }) => {
           data = data.filter(d => allowedIds.includes(d.deviceId));
         }
         
-        setDevices(data);
+        const withAliases = data.map((device) => {
+          const alias = deviceAliases?.[device.deviceId];
+          return alias ? { ...device, deviceName: alias } : device;
+        });
+
+        setDevices(withAliases);
         
         // If no device is selected and devices exist, select the first one
-        if (!selectedDevice && data.length > 0) {
-          onDeviceChange(data[0].deviceId);
+        if (!selectedDevice && withAliases.length > 0) {
+          onDeviceChange(withAliases[0].deviceId);
         }
       }
     } catch (error) {

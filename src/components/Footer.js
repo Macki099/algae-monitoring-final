@@ -1,9 +1,11 @@
 import React from 'react';
 import { Download, Settings, LogOut } from 'lucide-react';
 
-const Footer = ({ onExportData, onLogout }) => {
+const Footer = ({ onExportData, onOpenSettings, onLogout }) => {
   const handleSettingsClick = () => {
-    alert('Settings panel would open here in a full implementation');
+    if (onOpenSettings) {
+      onOpenSettings();
+    }
   };
 
   return (

@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/sensor-data';
 
-export const useSensorData = (deviceId) => {
+export const useSensorData = (deviceId, options = {}) => {
+  const pollIntervalSeconds = Math.max(1, Number(options.pollIntervalSeconds) || 5);
+  const historyLimit = Math.max(10, Number(options.historyLimit) || 20);
   const [sensorData, setSensorData] = useState({
     temperature: 22.5,
     dissolvedOxygen: 3.8,
@@ -60,7 +62,7 @@ export const useSensorData = (deviceId) => {
     if (!deviceId) return;
     
     try {
-      const url = `${API_URL}?limit=20&deviceId=${deviceId}`;
+      const url = `${API_URL}?limit=${historyLimit}&deviceId=${deviceId}`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
@@ -168,7 +170,7 @@ export const useSensorData = (deviceId) => {
     if (deviceId) {
       fetchHistoricalData();
     }
-  }, [deviceId]);
+  }, [deviceId, historyLimit]);
 
   // Fetch real-time data from backend
   useEffect(() => {
@@ -176,14 +178,14 @@ export const useSensorData = (deviceId) => {
     
     intervalRef.current = setInterval(() => {
       fetchHistoricalData(); // Fetch latest data from backend
-    }, 5000); // Update every 5 seconds
+    }, pollIntervalSeconds * 1000); // Update based on settings
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [deviceId]);
+  }, [deviceId, pollIntervalSeconds, historyLimit]);
 
   return {
     sensorData,

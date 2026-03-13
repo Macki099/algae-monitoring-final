@@ -187,6 +187,24 @@
   border: 1px solid rgba(244, 67, 54, 0.3);
 }
 
+.risk-high-contrast .risk-badge.normal {
+  background: rgba(76, 175, 80, 0.35);
+  color: #a5f2a5;
+  border-color: rgba(76, 175, 80, 0.6);
+}
+
+.risk-high-contrast .risk-badge.moderate {
+  background: rgba(255, 193, 7, 0.35);
+  color: #ffe08a;
+  border-color: rgba(255, 193, 7, 0.6);
+}
+
+.risk-high-contrast .risk-badge.high {
+  background: rgba(244, 67, 54, 0.35);
+  color: #ffb3ad;
+  border-color: rgba(244, 67, 54, 0.6);
+}
+
 /* Card Content */
 .card-content {
   display: flex;
