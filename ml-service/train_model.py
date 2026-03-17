@@ -22,31 +22,51 @@ def label_row(row):
     """
     Apply risk labeling based on water quality thresholds
     
-    Risk Levels:
-    - High: DO < 2 OR Turbidity > 50 OR pH > 9 OR EC > 1000 OR Temp > 25
-    - Moderate: DO < 5 OR Turbidity > 10 OR pH > 8.5 OR EC > 800 OR Temp > 20
-    - Normal: Otherwise
-    
-    Note: pH = 7.0 is treated as neutral placeholder (sensor not installed)
+    Updated risk logic:
+    - Immediate High: DO < 2 OR Turbidity > 80
+    - High-band review (pH > 9, EC > 1000, Temp > 25):
+      - 2 or more violations => High
+      - 1 violation => Moderate
+    - Moderate band (DO < 5 OR Turbidity > 10 OR pH > 8.5 OR EC > 800 OR Temp > 20):
+      - 1 or more violations => Moderate
+    - Otherwise => Normal
     """
-    # Ignore pH in risk assessment if it's exactly 7.0 (placeholder value)
-    ph_high = (row["pH"] > 9) if row["pH"] != 7.0 else False
-    ph_moderate = (row["pH"] > 8.5) if row["pH"] != 7.0 else False
-    
-    if (row["DO"] < 2 or 
-        row["Turbidity"] > 50 or 
-        ph_high or 
-        row["EC"] > 1000 or 
-        row["Temp"] > 25):
+    do = row["DO"]
+    turbidity = row["Turbidity"]
+    ph = row["pH"]
+    ec = row["EC"]
+    temp = row["Temp"]
+
+    if do < 2:
         return "High"
-    elif (row["DO"] < 5 or 
-          row["Turbidity"] > 10 or 
-          ph_moderate or 
-          row["EC"] > 800 or 
-          row["Temp"] > 20):
+
+    if turbidity > 80:
+        return "High"
+
+    high_band_violations = sum([
+        ph > 9,
+        ec > 1000,
+        temp > 25
+    ])
+
+    if high_band_violations >= 2:
+        return "High"
+
+    if high_band_violations == 1:
         return "Moderate"
-    else:
-        return "Normal"
+
+    moderate_violations = sum([
+        do < 5,
+        turbidity > 10,
+        ph > 8.5,
+        ec > 800,
+        temp > 20
+    ])
+
+    if moderate_violations >= 1:
+        return "Moderate"
+
+    return "Normal"
 
 def load_and_prepare_data(file_path):
     """Load dataset and prepare features"""
@@ -97,15 +117,17 @@ def load_and_prepare_data(file_path):
 def train_random_forest(X_train, y_train):
     """Train Random Forest classifier"""
     print("\nTraining Random Forest Classifier...")
-    print(f"  - n_estimators: 100")
-    print(f"  - max_depth: 99")
-    print(f"  - class_weight: balanced")
+    print(f"  - n_estimators: 300")
+    print(f"  - max_depth: 10")
+    print(f"  - min_samples_split: 10")
+    print(f"  - min_samples_leaf: 5")
     
     rf = RandomForestClassifier(
-        n_estimators=100,
-        max_depth=99,
+        n_estimators=300,
+        max_depth=10,
+        min_samples_split=10,
+        min_samples_leaf=5,
         random_state=42,
-        class_weight='balanced'
     )
     
     rf.fit(X_train, y_train)
@@ -164,6 +186,9 @@ def main():
     parser.add_argument('--output', type=str,
                        default='.',
                        help='Output directory for model files')
+    parser.add_argument('--noise-level', type=float,
+                       default=0.05,
+                       help='Gaussian noise scale as a fraction of each feature std-dev')
     
     args = parser.parse_args()
     
@@ -177,6 +202,17 @@ def main():
     # Prepare features and labels
     X = df[["DO", "Turbidity", "pH", "EC", "Temp"]]
     y = df["Risk"]
+
+    # Optional lightweight augmentation from the updated notebook approach
+    if args.noise_level > 0:
+        print(f"\nApplying Gaussian noise augmentation (noise_level={args.noise_level})...")
+        X_noisy = X.copy()
+        for col in X_noisy.columns:
+            feature_std = X_noisy[col].std()
+            noise = np.random.normal(0, args.noise_level * feature_std, size=len(X_noisy))
+            X_noisy[col] = X_noisy[col] + noise
+        X = X_noisy
+        print("✓ Noise augmentation applied")
     
     # Encode labels
     encoder = LabelEncoder()
