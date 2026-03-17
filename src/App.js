@@ -110,6 +110,21 @@ const App = () => {
   });
   const { riskLevels, overallRisk } = useRiskAssessment(sensorData, settings.alerts);
 
+  const mlOverallRisk = typeof mlPrediction?.risk === 'string'
+    ? mlPrediction.risk.toLowerCase()
+    : null;
+  const displayOverallRisk = mlOverallRisk || overallRisk;
+  const displayRiskLevels = mlOverallRisk
+    ? {
+        temperature: mlOverallRisk,
+        dissolvedOxygen: mlOverallRisk,
+        ph: mlOverallRisk,
+        electricalConductivity: mlOverallRisk,
+        turbidity: mlOverallRisk,
+        probioticLevel: mlOverallRisk
+      }
+    : riskLevels;
+
   const handleAuthenticated = (devices) => {
     setAuthenticatedDevices(devices);
     if (devices.length > 0) {
@@ -186,7 +201,7 @@ const App = () => {
       <div className="container">
         <Header 
           isConnected={isConnected}
-          overallRisk={overallRisk}
+          overallRisk={displayOverallRisk}
         />
         
         <DeviceSelector
@@ -205,7 +220,7 @@ const App = () => {
                 value={temperatureValue}
                 unit={temperatureUnit}
                 data={sliceHistory(dataHistory.temperature)}
-                riskLevel={riskLevels.temperature}
+                riskLevel={displayRiskLevels.temperature}
                 type="chart"
               />
             )}
@@ -217,7 +232,7 @@ const App = () => {
                 value={sensorData.dissolvedOxygen}
                 unit="mg/L"
                 data={sliceHistory(dataHistory.dissolvedOxygen)}
-                riskLevel={riskLevels.dissolvedOxygen}
+                riskLevel={displayRiskLevels.dissolvedOxygen}
                 type="chart"
               />
             )}
@@ -229,7 +244,7 @@ const App = () => {
                 value={sensorData.ph}
                 unit=""
                 data={sliceHistory(dataHistory.ph)}
-                riskLevel={riskLevels.ph}
+                riskLevel={displayRiskLevels.ph}
                 type="gauge"
                 min={0}
                 max={14}
@@ -243,7 +258,7 @@ const App = () => {
                 value={sensorData.electricalConductivity}
                 unit="µS/cm"
                 data={sliceHistory(dataHistory.electricalConductivity)}
-                riskLevel={riskLevels.electricalConductivity}
+                riskLevel={displayRiskLevels.electricalConductivity}
                 type="gauge"
                 min={0}
                 max={1200}
@@ -257,7 +272,7 @@ const App = () => {
                 value={sensorData.turbidity}
                 unit="NTU"
                 data={sliceHistory(dataHistory.turbidity)}
-                riskLevel={riskLevels.turbidity}
+                riskLevel={displayRiskLevels.turbidity}
                 type="chart"
               />
             )}
@@ -269,7 +284,7 @@ const App = () => {
                 value={sensorData.probioticLevel}
                 unit="%"
                 data={sliceHistory(dataHistory.probioticLevel)}
-                riskLevel={riskLevels.probioticLevel}
+                riskLevel={displayRiskLevels.probioticLevel}
                 type="tank"
                 min={0}
                 max={100}
@@ -277,8 +292,8 @@ const App = () => {
             )}
             
             <RiskAssessment
-              overallRisk={overallRisk}
-              riskLevels={riskLevels}
+              overallRisk={displayOverallRisk}
+              riskLevels={displayRiskLevels}
               sensorData={sensorData}
               mlPrediction={mlPrediction}
             />

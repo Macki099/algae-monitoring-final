@@ -76,7 +76,7 @@ const RiskAssessment = ({ overallRisk, riskLevels, sensorData, mlPrediction }) =
         <h3>
           <Icon name="shield" size={20} />
           Risk Assessment
-          {mlPrediction && (
+          {mlPrediction?.risk && (
             <span className="ml-badge" title="Machine Learning Prediction">
               <Icon name="cpu" size={14} /> ML
             </span>
@@ -105,16 +105,17 @@ const RiskAssessment = ({ overallRisk, riskLevels, sensorData, mlPrediction }) =
         
         <div className="risk-parameters">
           {parameters.map((param) => (
-            <div key={param.key} className={`risk-param ${riskLevels[param.key]}`}>
+            <div key={param.key} className={`risk-param ${riskLevels[param.key] || 'normal'}`}>
               <div className="param-info">
                 <span className="param-name">{param.name}:</span>
                 <span className="param-value">
                   {param.value.toFixed(1)}{param.unit}
                 </span>
               </div>
-              <span className={`param-status ${riskLevels[param.key]}`}>
+              <span className={`param-status ${riskLevels[param.key] || 'normal'}`}>
                 {riskLevels[param.key] === 'normal' ? 'Normal' : 
-                 riskLevels[param.key] === 'moderate' ? 'Moderate' : 'High Risk'}
+                 riskLevels[param.key] === 'moderate' ? 'Moderate' :
+                 riskLevels[param.key] === 'high' ? 'High Risk' : 'Normal'}
               </span>
             </div>
           ))}
