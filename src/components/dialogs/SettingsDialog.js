@@ -109,6 +109,16 @@ const SettingsDialog = ({
         </div>
 
         <div className="modal-body settings-body">
+          <section className="settings-section settings-reset-section">
+            <div className="settings-reset-panel">
+              <p className="settings-reset-title">Restore original settings</p>
+              <p className="settings-muted">Bring all thresholds and display options back to default values.</p>
+              <button className="btn-warning settings-reset-button" onClick={handleResetToDefaults}>
+                Reset to defaults
+              </button>
+            </div>
+          </section>
+
           <section className="settings-section">
             <h3>Device</h3>
             <div className="settings-grid">

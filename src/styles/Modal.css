@@ -275,6 +275,25 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
+.settings-reset-panel {
+  padding: 14px;
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  border-radius: 10px;
+}
+
+.settings-reset-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #fff7d6;
+}
+
+.settings-reset-button {
+  width: 100%;
+  margin-top: 8px;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .modal {
