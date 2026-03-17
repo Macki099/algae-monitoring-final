@@ -109,18 +109,6 @@ void generateDeviceId() {
     g_deviceId.toUpperCase();
 }
 
-// Generate a PHY-XXXX-XXXX key using the hardware RNG
-// Called before the provisioning portal opens so the key is ready to show
-String generateAccessKeyLocal() {
-    const char chars[] = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 32 unambiguous chars
-    auto segment = [&](int len) -> String {
-        String s = "";
-        for (int i = 0; i < len; i++) s += chars[esp_random() % 32];
-        return s;
-    };
-    return "PHY-" + segment(4) + "-" + segment(4);
-}
-
 // Load saved configuration from flash memory
 bool loadConfiguration() {
     preferences.begin("phycosense", true); // Read-only
@@ -190,13 +178,9 @@ void startProvisioningMode() {
     String htmlContent =
         "<br/>"
         "<div style='background:#e8f5e9;border-radius:8px;padding:16px;margin:10px 0;font-size:14px;color:#1a237e'>"
-        "<b>&#128273; Your Dashboard Access Key</b><br/>"
-        "<div style='background:#fff;border-radius:8px;padding:12px;margin:10px 0;text-align:center'>"
-        "<span style='font-size:1.5em;font-weight:700;color:#1565c0;letter-spacing:4px;font-family:monospace'>" + g_accessKey + "</span>"
-        "</div>"
-        "<b>Write this down before continuing!</b><br/>"
-        "You will need it to log in at <b>phycosense.app</b><br/>"
-        "<span style='font-size:0.85em;color:#555'>Then enter your WiFi password below and tap Save.</span>"
+        "<b>&#128273; Dashboard Access Key</b><br/>"
+        "Your key will be created/retrieved from the server after you tap <b>Save</b>.<br/>"
+        "<span style='font-size:0.85em;color:#555'>Then reconnect to <b>PhycoSense-" + g_deviceId + "</b> and open <b>http://192.168.4.1</b> to view the final key.</span>"
         "</div>";
     WiFiManagerParameter custom_html(htmlContent.c_str());
 
@@ -286,7 +270,11 @@ bool registerDevice() {
     
     doc["deviceId"] = g_deviceId;
     doc["deviceName"] = g_deviceName;
-    doc["accessKey"] = g_accessKey;  // Pre-generated on device; server stores it as-is
+    // Use server as single source of truth for key generation/recovery.
+    // If server supports deterministic recovery for existing deviceId, it will return that key.
+    if (g_accessKey.length() > 0) {
+        doc["accessKey"] = g_accessKey;
+    }
     
     String jsonString;
     serializeJson(doc, jsonString);
@@ -552,6 +540,11 @@ void sendDataToServer() {
 
     HTTPClient http;
     StaticJsonDocument<256> doc;
+    float sendTemperature = 0;
+    float sendTurbidity = 0;
+    int sendEc = 0;
+    float sendPh = 7.0;
+    float sendDissolvedOxygen = 7.0;
 
     doc["deviceId"]   = g_deviceId;
     doc["deviceName"] = g_deviceName;
@@ -560,11 +553,11 @@ void sendDataToServer() {
         // ── Phase 1: Out of water (0-15s) ────────────────────────────────
         // Air readings: ambient temp, near-zero turbidity/EC, normal pH/DO
         Serial.println("── PHASE 1: Device out of water ──");
-        doc["temperature"]     = 29.0 + random(-5, 5) * 0.1;   // ~28.5-29.5°C (air temp)
-        doc["turbidity"]       = 0.5  + random(0, 5)  * 0.1;   // ~0.5-1.0 NTU (air)
-        doc["ec"]              = 10   + random(-5, 5);          // ~5-15 µS/cm (air)
-        doc["ph"]              = 7.0  + random(-2, 2) * 0.1;   // normal, sensor not in water
-        doc["dissolvedOxygen"] = 7.8  + random(-3, 3) * 0.1;   // normal oxygen in air
+        sendTemperature = 29.0 + random(-5, 5) * 0.1;  // ~28.5-29.5°C (air temp)
+        sendTurbidity = 0.5 + random(0, 5) * 0.1;      // ~0.5-1.0 NTU (air)
+        sendEc = 10 + random(-5, 5);                   // ~5-15 µS/cm (air)
+        sendPh = 7.0 + random(-2, 2) * 0.1;            // normal, sensor not in water
+        sendDissolvedOxygen = 7.8 + random(-3, 3) * 0.1; // normal oxygen in air
     } else {
         // ── Phase 2: High-risk algae bloom water (15s+) ──────────────────
         // Temp / Turbidity / EC  → HIGH RISK, drift minimally
@@ -581,14 +574,20 @@ void sendDataToServer() {
         bloomTurb = constrain(bloomTurb, 60.0f, 80.0f);   // HIGH: > 50 NTU
         bloomEC   = constrain(bloomEC,  1050.0f, 1200.0f);// HIGH: > 1000 µS/cm
 
-        doc["temperature"]     = bloomTemp;
-        doc["turbidity"]       = bloomTurb;
-        doc["ec"]              = (int)bloomEC;
+        sendTemperature = bloomTemp;
+        sendTurbidity = bloomTurb;
+        sendEc = (int)bloomEC;
 
         // pH and DO stay normal — sensors not connected to these parameters
-        doc["ph"]              = 7.8 + random(-2, 2) * 0.1;    // 7.6-8.0 (normal)
-        doc["dissolvedOxygen"] = 6.5 + random(-3, 3) * 0.1;   // 6.2-6.8 mg/L (normal)
+        sendPh = 7.8 + random(-2, 2) * 0.1;               // 7.6-8.0 (normal)
+        sendDissolvedOxygen = 6.5 + random(-3, 3) * 0.1; // 6.2-6.8 mg/L (normal)
     }
+
+    doc["temperature"] = sendTemperature;
+    doc["turbidity"] = sendTurbidity;
+    doc["ec"] = sendEc;
+    doc["ph"] = sendPh;
+    doc["dissolvedOxygen"] = sendDissolvedOxygen;
 
     // Battery / power data (real if battery connected)
     doc["batteryVoltage"]    = round(batteryVoltage * 100) / 100.0;
@@ -597,6 +596,14 @@ void sendDataToServer() {
 
     String jsonString;
     serializeJson(doc, jsonString);
+
+    Serial.println(F("\n--- SENT DATA REPORT ---"));
+    Serial.print(F("Temperature: ")); Serial.print(sendTemperature, 2); Serial.println(F(" °C"));
+    Serial.print(F("pH:          ")); Serial.println(sendPh, 2);
+    Serial.print(F("EC:          ")); Serial.print(sendEc); Serial.println(F(" µS/cm"));
+    Serial.print(F("Turbidity:   ")); Serial.print(sendTurbidity, 2); Serial.println(F(" NTU"));
+    Serial.print(F("DO:          ")); Serial.print(sendDissolvedOxygen, 2); Serial.println(F(" mg/L"));
+    Serial.println(F("------------------------"));
 
     Serial.print(">> Sending JSON: ");
     Serial.println(jsonString);
@@ -663,17 +670,6 @@ void setup()
 
     if (!isProvisioned) {
         Serial.println("⚠ No configuration found - entering provisioning mode\n");
-        // Generate access key NOW — before the portal opens — so it can be displayed
-        // to the user on the very first 192.168.4.1 page they see.
-        if (g_accessKey.length() == 0) {
-            g_accessKey = generateAccessKeyLocal();
-            // Persist immediately so the same key survives a reboot mid-provisioning
-            preferences.begin("phycosense", false);
-            preferences.putString("accessKey", g_accessKey);
-            preferences.end();
-            Serial.print("Pre-generated access key: ");
-            Serial.println(g_accessKey);
-        }
         startProvisioningMode(); // also calls registerDevice() + startKeyPortal() internally
         justProvisioned = true;
     } else {
@@ -808,23 +804,6 @@ void loop()
         // Update battery status
         batteryVoltage = readBatteryVoltage();
         batteryPercentage = calculateBatteryPercentage(batteryVoltage);
-        
-        // Display mock data
-        Serial.println(F("\n--- MOCK DATA REPORT ---"));
-        Serial.println(F("Temperature: 25.0 °C (Mock)"));
-        Serial.println(F("pH: 7.0 (Mock)"));
-        Serial.println(F("EC: 500 µS/cm (Mock)"));
-        Serial.println(F("Turbidity: 5.0 NTU (Mock)"));
-        Serial.print(F("Battery: "));
-        if (isUSBPowered) {
-            Serial.println(F("USB Powered"));
-        } else {
-            Serial.print(batteryVoltage, 2);
-            Serial.print(F("V ("));
-            Serial.print(batteryPercentage);
-            Serial.println(F("%)"));
-        }
-        Serial.println(F("------------------------"));
         
         // Send to server (only if provisioned)
         if (isProvisioned) {
