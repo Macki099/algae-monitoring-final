@@ -103,17 +103,17 @@
 
 .parameter-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 25px;
 }
 
 /* Parameter Cards */
 .parameter-card {
-  background: rgba(255, 255, 255, 0.045);
-  border-radius: 14px;
-  padding: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 25px;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -125,15 +125,15 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(77, 208, 225, 0.85), rgba(0, 212, 255, 0.35));
-  border-radius: 14px 14px 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4dd0e1, #00d4ff);
+  border-radius: 20px 20px 0 0;
 }
 
 .parameter-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.14);
-  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .parameter-card.moderate::before {
@@ -148,25 +148,25 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
 
 .card-header h3 {
-  font-size: 1.02rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #ffffff;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .risk-badge {
-  padding: 4px 9px;
-  border-radius: 999px;
-  font-size: 0.72rem;
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
   font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
 }
 
 .risk-badge.normal {
@@ -209,7 +209,7 @@
 .card-content {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
 }
 
 .value-display {
@@ -219,20 +219,20 @@
 }
 
 .value {
-  font-size: 2.3rem;
+  font-size: 3rem;
   font-weight: 700;
   color: #4dd0e1;
   line-height: 1;
 }
 
 .unit {
-  font-size: 0.98rem;
+  font-size: 1.2rem;
   color: #90a4ae;
   font-weight: 500;
 }
 
 .chart-container {
-  height: 86px;
+  height: 120px;
   position: relative;
 }
 
@@ -423,12 +423,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: #b0bec5;
 }
 
 .trend-icon {
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: bold;
 }
 
@@ -615,7 +615,7 @@
   }
   
   .value {
-    font-size: 1.95rem;
+    font-size: 2.2rem;
   }
   
   .unit {
@@ -702,7 +702,7 @@
   
   /* Mobile chart adjustments */
   .chart-container {
-    height: 86px !important;
+    height: 200px !important;
   }
 }
 
