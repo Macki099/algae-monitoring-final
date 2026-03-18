@@ -103,7 +103,7 @@ const App = () => {
     Math.max(10, Math.round((historyWindowHours * 3600) / pollIntervalSeconds))
   );
 
-  const { sensorData, dataHistory, isConnected, mlPrediction } = useSensorData(selectedDevice, {
+  const { sensorData, dataHistory, isConnected, mlPrediction, mlServiceStatus } = useSensorData(selectedDevice, {
     pollIntervalSeconds,
     historyLimit
   });
@@ -302,6 +302,7 @@ const App = () => {
               riskLevels={displayRiskLevels}
               sensorData={sensorData}
               mlPrediction={mlPrediction}
+              mlServiceStatus={mlServiceStatus}
               isMlDriven={isMlDriven}
             />
           </div>

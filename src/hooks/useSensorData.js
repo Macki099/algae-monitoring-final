@@ -23,6 +23,7 @@ export const useSensorData = (deviceId, options = {}) => {
   });
 
   const [mlPrediction, setMlPrediction] = useState(null);
+  const [mlServiceStatus, setMlServiceStatus] = useState('unknown');
 
   const [dataHistory, setDataHistory] = useState({
     temperature: [],
@@ -35,6 +36,23 @@ export const useSensorData = (deviceId, options = {}) => {
 
   const [isConnected, setIsConnected] = useState(true);
   const intervalRef = useRef();
+  const mlHealthIntervalRef = useRef();
+
+  const fetchMlHealth = async () => {
+    try {
+      const response = await fetch(`${API_URL}/ml-health`);
+      if (!response.ok) {
+        setMlServiceStatus('unavailable');
+        return;
+      }
+
+      const data = await response.json();
+      setMlServiceStatus(data?.status === 'available' ? 'available' : 'unavailable');
+    } catch (error) {
+      console.error('Error fetching ML health:', error);
+      setMlServiceStatus('unavailable');
+    }
+  };
 
   // Function to log data to MongoDB
   const logDataToDatabase = async (data, riskLevel) => {
@@ -180,6 +198,17 @@ export const useSensorData = (deviceId, options = {}) => {
     }
   }, [deviceId, historyLimit]);
 
+  useEffect(() => {
+    fetchMlHealth();
+    mlHealthIntervalRef.current = setInterval(fetchMlHealth, 30000);
+
+    return () => {
+      if (mlHealthIntervalRef.current) {
+        clearInterval(mlHealthIntervalRef.current);
+      }
+    };
+  }, []);
+
   // Fetch real-time data from backend
   useEffect(() => {
     if (!deviceId) return;
@@ -200,6 +229,7 @@ export const useSensorData = (deviceId, options = {}) => {
     dataHistory,
     isConnected,
     mlPrediction,
+    mlServiceStatus,
     logDataToDatabase,
     fetchHistoricalData
   };

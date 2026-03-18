@@ -1,7 +1,14 @@
 import React from 'react';
 import Icon from './Icon';
 
-const RiskAssessment = ({ overallRisk, riskLevels, sensorData, mlPrediction, isMlDriven }) => {
+const RiskAssessment = ({ overallRisk, riskLevels, sensorData, mlPrediction, mlServiceStatus, isMlDriven }) => {
+  const mlStatusText = mlPrediction?.risk
+    ? 'Machine Learning (latest prediction received)'
+    : mlServiceStatus === 'available'
+      ? 'ML service online (waiting for sensor data)'
+      : mlServiceStatus === 'unavailable'
+        ? 'ML service unavailable'
+        : 'Checking ML service status';
   const getRiskLevelText = (risk) => {
     const normalizedRisk = typeof risk === 'string' ? risk.toLowerCase() : risk;
     
@@ -86,7 +93,7 @@ const RiskAssessment = ({ overallRisk, riskLevels, sensorData, mlPrediction, isM
         <div className="overall-risk">
           <div className="ml-confidence" style={{ marginBottom: 8 }}>
             <Icon name="cpu" size={14} />
-            Risk Source: {isMlDriven ? 'Machine Learning (ML-only mode)' : 'No prediction available'}
+            Risk Source: {isMlDriven ? 'Machine Learning (prediction mode)' : mlStatusText}
           </div>
           <div className={`risk-level ${displayRisk}`}>
             {getRiskLevelText(displayRisk)}
