@@ -294,6 +294,72 @@
   margin-top: 8px;
 }
 
+/* Date Range Export Dialog */
+.date-input-group {
+  margin-bottom: 14px;
+}
+
+.date-input-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.date-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.export-preview-panel {
+  margin-top: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 12px;
+}
+
+.export-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.export-preview-header h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.export-preview-body {
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
+
+.export-preview-body p {
+  margin: 0 0 8px;
+}
+
+.export-preview-list {
+  margin: 8px 0 0;
+  padding-left: 16px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.export-preview-list li {
+  margin-bottom: 4px;
+}
+
+.export-preview-error {
+  margin: 10px 0 0;
+  color: #ffb4ac;
+  font-size: 0.85rem;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .modal {

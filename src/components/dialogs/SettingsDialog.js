@@ -352,6 +352,7 @@ const SettingsDialog = ({
                 >
                   <option value="csv">CSV</option>
                   <option value="excel">Excel</option>
+                  <option value="bundle">Bundle (ZIP)</option>
                 </select>
               </label>
             </div>

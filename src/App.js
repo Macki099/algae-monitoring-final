@@ -8,7 +8,7 @@ import Footer from './components/Footer';
 import DateRangeDialog from './components/dialogs/DateRangeDialog';
 import SettingsDialog from './components/dialogs/SettingsDialog';
 import { useSensorData } from './hooks/useSensorData';
-import { exportDataByDateRange } from './utils/dataExport';
+import { exportDataByDateRange, getExportPreview } from './utils/dataExport';
 import './styles/App.css';
 
 const SETTINGS_STORAGE_KEY = 'phycosense_settings';
@@ -183,9 +183,24 @@ const App = () => {
   const handleExportWithDateRange = async (exportParams) => {
     await exportDataByDateRange({
       ...exportParams,
-      format: settings.data.exportFormat
+      format: settings.data.exportFormat,
+      deviceId: selectedDevice,
+      context: {
+        deviceId: selectedDevice,
+        sensorData,
+        riskLevels: displayRiskLevels,
+        overallRisk: displayOverallRisk,
+        mlPrediction,
+        isMlDriven
+      }
     });
   };
+
+  const handlePreviewWithDateRange = async (previewParams) => getExportPreview({
+    ...previewParams,
+    format: settings.data.exportFormat,
+    deviceId: selectedDevice
+  });
 
   const handleSaveSettings = (nextSettings) => {
     const merged = mergeSettings(DEFAULT_SETTINGS, nextSettings);
@@ -208,6 +223,10 @@ const App = () => {
         <Header 
           isConnected={isConnected}
           overallRisk={displayOverallRisk}
+          onExportData={handleExportData}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onLogout={handleLogout}
+          exportFormat={settings.data.exportFormat}
         />
         
         <DeviceSelector
@@ -308,16 +327,14 @@ const App = () => {
           </div>
         </main>
         
-        <Footer
-          onExportData={handleExportData}
-          onOpenSettings={() => setIsSettingsOpen(true)}
-          onLogout={handleLogout}
-        />
+        <Footer />
         
         <DateRangeDialog
           isOpen={isExportModalOpen}
           onClose={() => setIsExportModalOpen(false)}
           onExport={handleExportWithDateRange}
+          onPreview={handlePreviewWithDateRange}
+          exportFormat={settings.data.exportFormat}
         />
 
         <SettingsDialog
