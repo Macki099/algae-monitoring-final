@@ -54,6 +54,11 @@ const sensorDataSchema = new mongoose.Schema({
     min: 0,
     max: 1
   },
+  riskProbabilities: {
+    type: mongoose.Schema.Types.Mixed,
+    required: false,
+    default: null
+  },
   action: {
     type: mongoose.Schema.Types.Mixed,
     required: false

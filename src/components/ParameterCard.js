@@ -24,6 +24,7 @@ const ParameterCard = ({
       case 'normal': return 'Normal';
       case 'moderate': return 'Moderate Risk';
       case 'high': return 'High Risk';
+      case 'monitor': return 'Level Monitor';
       default: return 'No ML';
     }
   };

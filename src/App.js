@@ -8,6 +8,7 @@ import Footer from './components/Footer';
 import DateRangeDialog from './components/dialogs/DateRangeDialog';
 import SettingsDialog from './components/dialogs/SettingsDialog';
 import { useSensorData } from './hooks/useSensorData';
+import { useRiskAssessment } from './hooks/useRiskAssessment';
 import { exportDataByDateRange, getExportPreview } from './utils/dataExport';
 import './styles/App.css';
 
@@ -112,29 +113,14 @@ const App = () => {
     pollIntervalSeconds,
     historyLimit
   });
+  const { riskLevels: measuredRiskLevels } = useRiskAssessment(sensorData, settings.alerts);
 
   const mlOverallRisk = typeof mlPrediction?.risk === 'string'
     ? mlPrediction.risk.toLowerCase()
     : null;
   const isMlDriven = Boolean(mlOverallRisk);
   const displayOverallRisk = mlOverallRisk || 'unknown';
-  const displayRiskLevels = mlOverallRisk
-    ? {
-        temperature: mlOverallRisk,
-        dissolvedOxygen: mlOverallRisk,
-        ph: mlOverallRisk,
-        electricalConductivity: mlOverallRisk,
-        turbidity: mlOverallRisk,
-        probioticLevel: mlOverallRisk
-      }
-    : {
-        temperature: 'unknown',
-        dissolvedOxygen: 'unknown',
-        ph: 'unknown',
-        electricalConductivity: 'unknown',
-        turbidity: 'unknown',
-        probioticLevel: 'unknown'
-      };
+  const displayRiskLevels = measuredRiskLevels;
 
   const handleAuthenticated = (devices) => {
     setAuthenticatedDevices(devices);

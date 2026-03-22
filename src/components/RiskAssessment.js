@@ -74,6 +74,14 @@ const RiskAssessment = ({ overallRisk, riskLevels, sensorData, mlPrediction, mlS
   ];
 
   const displayRisk = mlPrediction?.risk ? mlPrediction.risk.toLowerCase() : overallRisk;
+  const probabilityRows = mlPrediction?.probabilities
+    ? Object.entries(mlPrediction.probabilities)
+        .sort((a, b) => b[1] - a[1])
+        .map(([label, score]) => ({
+          label,
+          score: Number(score)
+        }))
+    : [];
 
   return (
     <div className="risk-assessment-card">
@@ -106,6 +114,13 @@ const RiskAssessment = ({ overallRisk, riskLevels, sensorData, mlPrediction, mlS
             <div className="ml-confidence">
               <Icon name="trending-up" size={14} />
               Prediction Confidence: {(mlPrediction.confidence * 100).toFixed(1)}%
+            </div>
+          )}
+
+          {probabilityRows.length > 0 && (
+            <div className="ml-confidence">
+              <Icon name="barChart" size={14} />
+              Class Votes: {probabilityRows.map((row) => `${row.label} ${(row.score * 100).toFixed(1)}%`).join(' • ')}
             </div>
           )}
         </div>

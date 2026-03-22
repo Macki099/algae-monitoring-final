@@ -120,21 +120,16 @@ export const useRiskAssessment = (sensorData, overrides = {}) => {
       risks.turbidity = 'high';
     }
     
-    // Probiotic Level: Lower = Higher Risk (inverted logic)
-    const probioticLevel = sensorData.probioticLevel || 100;
-    if (probioticLevel > 50) {
-      risks.probioticLevel = 'normal';
-    } else if (probioticLevel > 20) {
-      risks.probioticLevel = 'moderate';
-    } else {
-      risks.probioticLevel = 'high';
-    }
+    // Probiotic chamber is a dosing-level monitor, not an algae-risk input.
+    risks.probioticLevel = 'monitor';
     
     return risks;
   }, [sensorData, overrides]);
 
   const overallRisk = useMemo(() => {
-    const riskValues = Object.values(riskLevels);
+    const riskValues = Object.entries(riskLevels)
+      .filter(([key]) => key !== 'probioticLevel')
+      .map(([, value]) => value);
     const highCount = riskValues.filter(risk => risk === 'high').length;
     const moderateCount = riskValues.filter(risk => risk === 'moderate').length;
     

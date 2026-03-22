@@ -34,6 +34,7 @@ router.post('/', async (req, res) => {
       if (mlResponse.data && mlResponse.data.risk) {
         sensorData.risk = mlResponse.data.risk;
         sensorData.riskConfidence = mlResponse.data.confidence;
+        sensorData.riskProbabilities = mlResponse.data.probabilities || null;
         sensorData.action = mlResponse.data.action;
         responseMeta.mlStatus = 'available';
         

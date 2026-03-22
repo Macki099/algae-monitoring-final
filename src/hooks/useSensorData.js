@@ -130,6 +130,7 @@ export const useSensorData = (deviceId, options = {}) => {
             setMlPrediction({
               risk: latest.risk,
               confidence: latest.riskConfidence || null,
+              probabilities: latest.riskProbabilities || null,
               action: latest.action || null
             });
           }

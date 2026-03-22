@@ -12,7 +12,12 @@ import {
   Download,
   Settings,
   List,
-  ChevronDown
+  ChevronDown,
+  Activity,
+  Info,
+  Cpu,
+  TrendingUp,
+  BarChart3
 } from 'lucide-react';
 
 const iconMap = {
@@ -28,7 +33,13 @@ const iconMap = {
   download: Download,
   settings: Settings,
   list: List,
-  chevronDown: ChevronDown
+  chevronDown: ChevronDown,
+  activity: Activity,
+  info: Info,
+  cpu: Cpu,
+  'trending-up': TrendingUp,
+  barChart: BarChart3,
+  'alert-triangle': AlertTriangle
 };
 
 const Icon = ({ name, size = 24, className = "", ...props }) => {
