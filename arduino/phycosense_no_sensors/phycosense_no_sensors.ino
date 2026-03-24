@@ -100,7 +100,9 @@ int calculateBatteryPercentage(float voltage)
 // Generate unique device ID from MAC address
 void generateDeviceId() {
     uint64_t chipid = ESP.getEfuseMac();
-    g_deviceId = "ESP32-" + String((uint32_t)(chipid >> 24), HEX);
+    char idBuf[24];
+    snprintf(idBuf, sizeof(idBuf), "ESP32-%04X%08X", (uint16_t)(chipid >> 32), (uint32_t)chipid);
+    g_deviceId = String(idBuf);
     g_deviceId.toUpperCase();
 }
 
@@ -151,6 +153,11 @@ void clearConfiguration() {
     // Also clear WiFiManager saved credentials
     WiFiManager wm;
     wm.resetSettings();
+
+    // Force erase saved STA credentials from NVS as an extra safety step.
+    WiFi.mode(WIFI_STA);
+    WiFi.disconnect(true, true);
+    delay(200);
     
     Serial.println("✓ Configuration cleared - device reset to factory defaults");
     Serial.println("✓ WiFi credentials erased");

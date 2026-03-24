@@ -68,9 +68,15 @@ router.post('/register-device', async (req, res) => {
     // If this exact deviceId is already registered, return its existing key
     const existing = await Device.findOne({ deviceId });
     if (existing) {
+      if (deviceName && deviceName.trim() && existing.deviceName !== deviceName.trim()) {
+        existing.deviceName = deviceName.trim();
+        await existing.save();
+      }
+
       return res.status(409).json({
         message: 'Device already registered',
         deviceId,
+        deviceName: existing.deviceName,
         accessKey: existing.accessKey
       });
     }
