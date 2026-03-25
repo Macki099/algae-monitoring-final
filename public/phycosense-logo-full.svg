@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 760" role="img" aria-label="PhycoSense logo full">
+  <rect width="760" height="760" fill="#f0f0f0"/>
+  <image href="/phycosense-logo-mark.svg" x="220" y="120" width="320" height="320"/>
+  <g transform="translate(120,520)">
+    <text x="0" y="0" font-family="Segoe UI, Arial, sans-serif" font-size="70" font-weight="800" letter-spacing="2" fill="#151a20">PHYCOSENSE</text>
+    <text x="0" y="40" font-family="Segoe UI, Arial, sans-serif" font-size="28" fill="#2d3138">Real-time Algae Monitoring System</text>
+  </g>
+</svg>

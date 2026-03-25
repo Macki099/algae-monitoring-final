@@ -56,8 +56,8 @@ const Header = ({
       <div className="header-top">
         <div className="header-content">
           <h1 className="title">
-            <Icon name="droplets" size={48} className="title-icon" />
-            PhycoSense
+            <img src="/phycosense-logo-mark.svg" alt="PhycoSense logo" className="title-logo" />
+            <span>PhycoSense</span>
           </h1>
           <p className="subtitle">Real-time Algae Monitoring Dashboard</p>
           <div className="status-indicator">

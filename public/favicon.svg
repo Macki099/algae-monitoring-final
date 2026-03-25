@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" role="img" aria-label="PhycoSense logo mark">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#96c96c"/>
+      <stop offset="1" stop-color="#67b234"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0a7f35"/>
+      <stop offset="1" stop-color="#06692c"/>
+    </linearGradient>
+    <style>
+      .arc { fill: none; stroke: #66b9cf; stroke-width: 3; stroke-linecap: round; }
+      .dot { fill: #66b9cf; }
+      .seed { fill: #6dad36; }
+    </style>
+  </defs>
+
+  <rect width="320" height="320" rx="52" ry="52" fill="#ffffff"/>
+
+  <path d="M103 45c25 0 38 25 25 53l-25 54c-9 20-33 16-36-7-3-18 2-38 14-58 6-10 12-21 22-33z" fill="url(#g2)"/>
+  <path d="M146 95c15 0 26 14 19 32l-17 44c-6 15-23 16-31 2-8-13-8-33 0-50 7-14 16-28 29-28z" fill="url(#g1)"/>
+  <path d="M180 114c14 0 21 15 16 30l-15 44c-6 16-24 16-30 1-5-13-2-32 7-47 8-14 12-28 22-28z" fill="url(#g1)"/>
+  <path d="M207 92c28 0 47 28 36 58l-26 68c-8 21-35 26-52 11-14-13-18-36-8-54l27-58c8-16 13-25 23-25z" fill="url(#g2)"/>
+
+  <path d="M53 180c16 0 28 14 23 31l-10 35c-5 16-23 21-35 11-10-8-16-22-13-37 4-18 17-40 35-40z" fill="url(#g1)"/>
+  <path d="M101 189c13 0 22 10 18 24l-13 44c-4 13-19 18-29 10-8-7-10-19-7-31l11-34c4-9 9-13 20-13z" fill="url(#g1)"/>
+  <path d="M171 233c12 0 21 12 16 25l-12 28c-5 13-20 19-32 11-10-7-12-20-6-31l13-24c5-7 11-9 21-9z" fill="#a4cf8a"/>
+  <path d="M191 28c13 0 19 13 13 24l-18 25c-8 11-22 14-32 7-9-6-9-18-2-27l20-23c6-4 12-6 19-6z" fill="#a4cf8a"/>
+
+  <circle class="seed" cx="42" cy="111" r="5"/>
+  <circle class="seed" cx="57" cy="158" r="4"/>
+  <circle class="seed" cx="262" cy="112" r="4"/>
+  <circle class="seed" cx="269" cy="196" r="4"/>
+
+  <path class="arc" d="M192 60c34 0 63 26 63 61"/>
+  <path class="arc" d="M186 73c27 0 50 20 50 47"/>
+  <path class="arc" d="M179 86c20 0 37 15 37 34"/>
+  <circle class="dot" cx="255" cy="121" r="4"/>
+  <circle class="dot" cx="235" cy="74" r="3"/>
+  <circle class="dot" cx="201" cy="60" r="3"/>
+
+  <path class="arc" d="M34 207c0 32 25 58 56 58"/>
+  <path class="arc" d="M47 205c0 24 19 43 43 43"/>
+  <path class="arc" d="M58 203c0 16 13 30 30 30"/>
+  <circle class="dot" cx="34" cy="207" r="4"/>
+  <circle class="dot" cx="76" cy="264" r="3"/>
+  <circle class="dot" cx="92" cy="296" r="4"/>
+</svg>
