@@ -19,6 +19,14 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 /* Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 8px;
@@ -49,6 +57,12 @@ button {
 
 button:hover {
   transform: translateY(-2px);
+}
+
+@media (hover: none) {
+  button:hover {
+    transform: none;
+  }
 }
 
 /* Utility Classes */

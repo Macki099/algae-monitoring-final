@@ -382,6 +382,7 @@ const App = () => {
               mlServiceStatus={mlServiceStatus}
               isConnected={isConnected}
               latestPredictionConfidence={latestPredictionConfidence}
+              selectedDevice={selectedDevice}
             />
           ) : (
             <main className="dashboard">

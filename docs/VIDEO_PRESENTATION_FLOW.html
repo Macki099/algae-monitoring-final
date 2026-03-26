@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhycoSense Video Flow and Voice-Over Script</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f5f7f4;
+      --surface: #ffffff;
+      --ink: #14342f;
+      --muted: #4f6661;
+      --accent: #0e8b77;
+      --accent-soft: #dcf2ed;
+      --warm: #f18f3b;
+      --line: #d8e2df;
+      --shadow: 0 10px 30px rgba(20, 52, 47, 0.08);
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 120% -20%, rgba(14, 139, 119, 0.14), transparent 60%),
+        radial-gradient(900px 420px at -10% 0%, rgba(241, 143, 59, 0.1), transparent 60%),
+        var(--bg);
+      line-height: 1.55;
+    }
+
+    .container {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 34px 18px 64px;
+    }
+
+    .hero {
+      background: linear-gradient(145deg, #ffffff, #f3faf8);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 28px 24px;
+      position: relative;
+      overflow: hidden;
+      animation: rise 700ms ease-out;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, rgba(14, 139, 119, 0.2), rgba(14, 139, 119, 0));
+      right: -40px;
+      top: -40px;
+      pointer-events: none;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 700;
+    }
+
+    h1, h2, h3 {
+      font-family: "Fraunces", serif;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    h1 {
+      margin-top: 12px;
+      font-size: clamp(1.7rem, 3vw, 2.5rem);
+    }
+
+    .hero p {
+      margin: 12px 0 0;
+      max-width: 840px;
+      color: var(--muted);
+    }
+
+    .stats {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.25rem;
+      color: var(--ink);
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 0.93rem;
+    }
+
+    section {
+      margin-top: 22px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      animation: fadeUp 650ms ease both;
+    }
+
+    .card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    .card p,
+    .card li,
+    table,
+    .note {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      animation: fadeUp 700ms ease both;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
+    th {
+      background: #eef6f3;
+      color: var(--ink);
+      font-size: 0.88rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .scene-id {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: #fef0e2;
+      color: #a95f1c;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+
+    .footer {
+      margin-top: 20px;
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      background: #f9fcfb;
+      color: var(--muted);
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .hero {
+        padding: 20px 16px;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <span class="tag">PhycoSense Presentation Plan</span>
+      <h1>Video Flow + Voice-Over Script + Clip Durations</h1>
+      <p>
+        This production guide is built for your field shoot at the pond and dashboard walkthrough.
+        It includes exact segment timing, suggested clip lengths, and ready voice-over lines.
+        Target cut: <strong>exactly 10 minutes and 00 seconds</strong>.
+        The intro now includes stock-footage comparison fillers for traditional testing versus PhycoSense,
+        so you can satisfy the required runtime while staying relevant to your project story.
+      </p>
+      <div class="stats">
+        <div class="stat">
+          <strong>10:00</strong>
+          <span>Total Runtime</span>
+        </div>
+        <div class="stat">
+          <strong>18</strong>
+          <span>Main Scenes</span>
+        </div>
+        <div class="stat">
+          <strong>7</strong>
+          <span>Pond-focused Clips</span>
+        </div>
+        <div class="stat">
+          <strong>5</strong>
+          <span>Dashboard Segments</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="cards">
+      <article class="card">
+        <h3>Editing Rhythm</h3>
+        <p>
+          Keep intro stock fillers at 8-15 second cuts, then move to 15-40 second segments
+          for explanation-heavy architecture and dashboard walkthrough parts.
+        </p>
+      </article>
+      <article class="card">
+        <h3>Voice Tone</h3>
+        <p>
+          Confident and practical. Speak as if this is a deployable solution now, while still mentioning prototype status once.
+        </p>
+      </article>
+      <article class="card">
+        <h3>Music + SFX</h3>
+        <p>
+          Light ambient bed at -24 dB under narration. Add subtle water ambience during pond clips to make transitions feel real.
+        </p>
+      </article>
+      <article class="card">
+        <h3>Output Options</h3>
+        <p>
+          Export one 16:9 presentation version at exactly 10:00 and one 9:16 short recap version if needed.
+        </p>
+      </article>
+    </section>
+
+    <section>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Scene</th>
+              <th>Timecode</th>
+              <th>Clip Length</th>
+              <th>What to Show</th>
+              <th>Voice-Over Script</th>
+              <th>On-Screen Text</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="scene-id">S1</span> <span class="pill">Hook</span></td>
+              <td>0:00-0:20</td>
+              <td>20s</td>
+              <td>Strong hook montage: polluted water texture, fish pond, then your buoy hero frame.</td>
+              <td>
+                "Water quality can change in minutes, but many monitoring routines are still delayed.
+                This gap is where algae blooms and water risk silently grow."
+              </td>
+              <td>"The monitoring gap is the problem"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S2</span> <span class="pill">Stock Intro</span></td>
+              <td>0:20-0:50</td>
+              <td>30s</td>
+              <td>Stock footage: manual sampling, collecting bottle samples, writing notes on clipboard.</td>
+              <td>
+                "Traditional testing often starts with manual collection, one location at a time,
+                then manual logging and delayed interpretation."
+              </td>
+              <td>"Traditional method: manual and periodic"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S3</span> <span class="pill">Stock Intro</span></td>
+              <td>0:50-1:20</td>
+              <td>30s</td>
+              <td>Stock footage: lab testing setup, waiting, paperwork, delayed reporting visuals.</td>
+              <td>
+                "By the time results are processed, conditions may already have changed.
+                This creates response delays when fast action matters most."
+              </td>
+              <td>"Challenge: delayed response window"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S4</span> <span class="pill">Comparison</span></td>
+              <td>1:20-1:50</td>
+              <td>30s</td>
+              <td>Split screen: traditional manual routine vs dashboard auto-update and live alerts.</td>
+              <td>
+                "Compared to periodic manual checks, PhycoSense streams readings every five seconds,
+                turning monitoring into continuous decision support."
+              </td>
+              <td>"Traditional vs PhycoSense"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S5</span></td>
+              <td>1:50-2:10</td>
+              <td>20s</td>
+              <td>Problem-to-solution bridge card, then first clean hero shot of your device.</td>
+              <td>
+                "Our goal is simple: detect risk earlier, respond faster, and reduce guesswork in water monitoring."
+              </td>
+              <td>"From delay to real-time"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S6</span> <span class="pill">Pond</span></td>
+              <td>2:10-2:35</td>
+              <td>25s</td>
+              <td>Pond establishing shot, buoy floating, medium-angle stability shots.</td>
+              <td>
+                "This prototype buoy is designed for continuous operation in pond-like conditions,
+                collecting and transmitting sensor values at regular intervals."
+              </td>
+              <td>"Prototype field simulation"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S7</span> <span class="pill">Hardware</span></td>
+              <td>2:35-3:00</td>
+              <td>25s</td>
+              <td>Close-up B-roll: ESP32, pH, turbidity, EC, dissolved oxygen, temperature, relay/actuator components.</td>
+              <td>
+                "The hardware stack includes an ESP32 microcontroller with water-quality sensing modules,
+                plus actuator control support for intervention workflows."
+              </td>
+              <td>"MCU, sensors, and actuator-ready control"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S8</span> <span class="pill">Architecture</span></td>
+              <td>3:00-3:30</td>
+              <td>30s</td>
+              <td>Animated architecture map: ESP32 -> Express backend -> ML service -> dashboard -> operators.</td>
+              <td>
+                "Data moves from embedded sensing to cloud processing and machine learning inference,
+                then appears on a dashboard as actionable risk intelligence."
+              </td>
+              <td>"End-to-end intelligent monitoring flow"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S9</span> <span class="pill">Pond</span></td>
+              <td>3:30-4:00</td>
+              <td>30s</td>
+              <td>Deployment sequence: carrying buoy, release in water, static floating verification.</td>
+              <td>
+                "In this demonstration, the buoy is deployed in a pond setting to represent real operating conditions."
+              </td>
+              <td>"Deployment and stability check"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S10</span> <span class="pill">Dashboard</span></td>
+              <td>4:00-4:35</td>
+              <td>35s</td>
+              <td>Screen recording: key login, device selection, landing on live metrics screen.</td>
+              <td>
+                "Users access the system through a device key and immediately view live sensor readings
+                tied to a specific deployment unit."
+              </td>
+              <td>"Secure key-based access"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S11</span> <span class="pill">Dashboard</span></td>
+              <td>4:35-5:15</td>
+              <td>40s</td>
+              <td>Navigate parameter cards, trend charts, and live value refresh behavior.</td>
+              <td>
+                "The interface combines current values and historical trends,
+                helping operators quickly identify abnormal movement across key parameters."
+              </td>
+              <td>"Live and historical insights"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S12</span> <span class="pill">Dashboard</span></td>
+              <td>5:15-5:55</td>
+              <td>40s</td>
+              <td>Risk panel and actuator/control section with recommendation output.</td>
+              <td>
+                "Machine learning converts raw measurements into understandable risk categories,
+                allowing faster and more consistent intervention planning."
+              </td>
+              <td>"Risk prediction and response guidance"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S13</span> <span class="pill">Dashboard</span></td>
+              <td>5:55-6:30</td>
+              <td>35s</td>
+              <td>Date filtering, historical review, and optional data export workflow.</td>
+              <td>
+                "Beyond live monitoring, users can inspect historical windows and export records
+                for reporting and research documentation."
+              </td>
+              <td>"Operational transparency through records"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S14</span> <span class="pill">Architecture</span></td>
+              <td>6:30-7:05</td>
+              <td>35s</td>
+              <td>Prototype architecture board: MCU, sensors, wireless link, backend, ML, storage, UI, actuators.</td>
+              <td>
+                "The prototype architecture combines embedded electronics, cloud API services,
+                database persistence, and model-based risk assessment in one integrated stack."
+              </td>
+              <td>"Component architecture overview"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S15</span> <span class="pill">Flow</span></td>
+              <td>7:05-7:45</td>
+              <td>40s</td>
+              <td>Step-by-step data pipeline animation with callouts and arrows.</td>
+              <td>
+                "From sensing to prediction, each cycle updates every five seconds,
+                supporting near-real-time awareness and decision support at the user level."
+              </td>
+              <td>"Continuous sensing, continuous intelligence"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S16</span> <span class="pill">Scenario</span></td>
+              <td>7:45-8:35</td>
+              <td>50s</td>
+              <td>Scenario montage: simulated parameter drift, alert visualization, recommended response path.</td>
+              <td>
+                "In a simulated risk rise, the system surfaces warnings, highlights trends,
+                and supports quicker intervention compared with delayed manual checks."
+              </td>
+              <td>"Simulated incident response"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S17</span> <span class="pill">Roadmap</span></td>
+              <td>8:35-9:20</td>
+              <td>45s</td>
+              <td>Future montage: ruggedized casing, power optimization, multi-site rollout, mobile alerts.</td>
+              <td>
+                "Current work is a validated prototype. Next steps include stronger field hardening,
+                improved autonomy, and scaling to more deployment locations."
+              </td>
+              <td>"From prototype to production"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S18</span> <span class="pill">Closing</span></td>
+              <td>9:20-10:00</td>
+              <td>40s</td>
+              <td>Team shot, pond hero shot, acknowledgements, logo end card.</td>
+              <td>
+                "PhycoSense demonstrates a practical direction for smarter, faster, and data-driven algae risk monitoring.
+                Thank you for watching."
+              </td>
+              <td>"PhycoSense: Real-time algae risk intelligence"</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="cards">
+      <article class="card">
+        <h3>Pond Shoot Shot List (Minimum)</h3>
+        <ul>
+          <li>2 wide establishing shots (12-15s each)</li>
+          <li>3 medium buoy floating shots (10-12s each)</li>
+          <li>3 close-up hardware detail shots (8-10s each)</li>
+          <li>2 deployment shots by hand (12-15s each)</li>
+          <li>2 moving side/orbit shots (10-12s each)</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Dashboard Capture Checklist</h3>
+        <ul>
+          <li>Login with a valid PHY key</li>
+          <li>Switch between device views</li>
+          <li>Show live value updates and charts</li>
+          <li>Open risk assessment module</li>
+          <li>Show actuator/control section if available</li>
+          <li>Show export data or date-range filter</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>What You Might Have Missed</h3>
+        <ul>
+          <li>Show one explicit "problem" scenario before your solution</li>
+          <li>Add one line on reliability limits: "prototype simulation footage"</li>
+          <li>Include battery/power source mention for field realism</li>
+          <li>Include connectivity note: Wi-Fi/cloud dependency</li>
+          <li>Prepare legal-safe stock clips and attribution list if required by your school</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>10:00 Runtime Control Tips</h3>
+        <p class="note">
+          Keep the full cut at exactly 10:00 by locking scene durations first,
+          then adjusting narration speed to 130-140 words per minute.
+          If you exceed 10:00, trim Scene S16 by 5-10 seconds and Scene S17 by 5 seconds.
+        </p>
+      </article>
+    </section>
+
+    <div class="footer">
+      Production note: Record voice-over in one quiet room using the same mic and distance.
+      Keep narration around 130-140 words per minute so the script aligns with this timing.
+      Intro stock filler scenes are S2, S3, and S4, and are designed specifically to help hit the exact 10:00 requirement.
+    </div>
+  </main>
+</body>
+</html>

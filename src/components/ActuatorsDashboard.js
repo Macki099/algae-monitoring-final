@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
 
+const RAW_API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api/sensor-data';
+const normalizeSensorDataUrl = (url) => {
+  let base = (url || '').trim();
+  if (base.endsWith('/')) base = base.slice(0, -1);
+  if (base.endsWith('/sensor-data')) return base;
+  if (base.endsWith('/api')) return `${base}/sensor-data`;
+  return `${base}/api/sensor-data`;
+};
+const API_URL = normalizeSensorDataUrl(RAW_API_URL).trim();
+
 const ActuatorsDashboard = ({
   lastAction,
   overallRisk,
@@ -8,6 +18,8 @@ const ActuatorsDashboard = ({
   mlServiceStatus,
   isConnected,
   latestPredictionConfidence
+  ,
+  selectedDevice
 }) => {
   const actionText = (lastAction?.text || '').toLowerCase();
 
@@ -30,6 +42,8 @@ const ActuatorsDashboard = ({
     probioticValve: probioticState !== 'Idle'
   });
   const [aeratorIntensity, setAeratorIntensity] = useState(aeratorState === 'Active' ? 75 : 45);
+  const [isSendingCommand, setIsSendingCommand] = useState(false);
+  const [commandStatus, setCommandStatus] = useState('');
 
   const actuatorCards = [
     {
@@ -60,11 +74,53 @@ const ActuatorsDashboard = ({
     return fallbackState;
   };
 
+  const sendActuatorCommand = async (actuator, state, pwm) => {
+    if (!selectedDevice) {
+      setCommandStatus('No device selected');
+      return;
+    }
+
+    setIsSendingCommand(true);
+    try {
+      const response = await fetch(`${API_URL}/actuator-command`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          deviceId: selectedDevice,
+          actuator,
+          state,
+          pwm: actuator === 'aerator' ? Math.round((Number(pwm) / 100) * 255) : 0,
+          durationMs: 3000
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Command failed (${response.status})`);
+      }
+
+      setCommandStatus(`Sent: ${actuator} ${state ? 'ON' : 'OFF'}`);
+    } catch (error) {
+      setCommandStatus(`Error: ${error.message}`);
+    } finally {
+      setIsSendingCommand(false);
+    }
+  };
+
   const toggleActuator = (key, nextValue) => {
     setActuatorPower((previous) => ({
       ...previous,
       [key]: nextValue
     }));
+
+    if (key === 'aerationValve') {
+      sendActuatorCommand('aerator', nextValue, aeratorIntensity);
+    }
+
+    if (key === 'probioticValve') {
+      sendActuatorCommand('probiotic', nextValue, 0);
+    }
   };
 
   return (
@@ -73,6 +129,7 @@ const ActuatorsDashboard = ({
         <h2>Actuators Dashboard</h2>
         <p>Live status of control outputs for this device.</p>
         <p className="actuator-connection">Connection: {isConnected ? 'Online' : 'Offline'}</p>
+        <p className="actuator-connection">Manual command: {isSendingCommand ? 'Sending...' : (commandStatus || 'Idle')}</p>
       </section>
 
       <section className="actuators-grid">
@@ -117,7 +174,13 @@ const ActuatorsDashboard = ({
                   max="100"
                   step="5"
                   value={aeratorIntensity}
-                  onChange={(event) => setAeratorIntensity(Number(event.target.value))}
+                  onChange={(event) => {
+                    const nextValue = Number(event.target.value);
+                    setAeratorIntensity(nextValue);
+                    if (actuatorPower.aerationValve) {
+                      sendActuatorCommand('aerator', true, nextValue);
+                    }
+                  }}
                   disabled={!isConnected || !actuatorPower.aerationValve}
                 />
               </div>

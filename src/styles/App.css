@@ -2624,3 +2624,141 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Mobile dashboard stability overrides */
+.container.with-right-sidebar,
+.container.with-right-sidebar .top-panel,
+.container.with-right-sidebar .dashboard,
+.container.with-right-sidebar .footer,
+.dashboard-layout,
+.parameter-grid,
+.parameter-card,
+.kpi-strip,
+.risk-summary-panel,
+.card-content {
+  min-width: 0;
+}
+
+@media (max-width: 1180px) {
+  .container.with-right-sidebar.sidebar-full .top-panel,
+  .container.with-right-sidebar.sidebar-full .dashboard,
+  .container.with-right-sidebar.sidebar-full .footer,
+  .container.with-right-sidebar.sidebar-mini .top-panel,
+  .container.with-right-sidebar.sidebar-mini .dashboard,
+  .container.with-right-sidebar.sidebar-mini .footer {
+    margin-left: 0 !important;
+  }
+
+  .container.with-right-sidebar .app-sidebar,
+  .container.with-right-sidebar .app-sidebar.collapsed {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    width: 100% !important;
+    max-height: none !important;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+  }
+
+  .container.with-right-sidebar .sidebar-reopen-btn {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .parameter-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .parameter-card {
+    padding: 14px;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .value-display {
+    flex-wrap: wrap;
+    gap: 4px 8px;
+  }
+
+  .chart-container {
+    height: 180px !important;
+  }
+
+  .tank-container-wrapper {
+    min-height: 190px;
+    padding: 8px 0;
+  }
+
+  .tank-container {
+    width: 100%;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .tank-outline {
+    width: 88px;
+    height: 168px;
+  }
+
+  .tank-markers,
+  .marker,
+  .marker::before,
+  .marker span {
+    display: none;
+  }
+
+  .tank-percentage {
+    font-size: 1.9rem;
+  }
+
+  .tank-status {
+    font-size: 0.78rem;
+    padding: 6px 10px;
+    letter-spacing: 0.4px;
+  }
+
+  .gauge-circle svg {
+    width: 160px;
+    height: 160px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .container.with-right-sidebar {
+    padding: 8px;
+  }
+
+  .header {
+    margin-bottom: 20px;
+  }
+
+  .kpi-card {
+    padding: 10px 12px;
+  }
+
+  .kpi-value {
+    font-size: 1rem;
+  }
+
+  .app-sidebar {
+    gap: 8px;
+    padding: 8px !important;
+  }
+
+  .sidebar-section {
+    padding: 8px !important;
+  }
+
+  .gauge-circle svg {
+    width: 140px;
+    height: 140px;
+  }
+}
