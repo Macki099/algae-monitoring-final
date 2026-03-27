@@ -51,10 +51,15 @@
     const String PRODUCTION_SERVER = "https://algae-monitoring-final-production.up.railway.app/api/sensor-data";
 
     // Set true to simulate changing sensor data for actuator testing.
-    const bool USE_MOCK_DATA = true;
+    const bool USE_MOCK_DATA = false;
 
     // Set false for manual motor testing from dashboard (no automatic actuation on risk).
-    const bool ENABLE_AUTONOMOUS_ACTUATION = false;
+    const bool ENABLE_AUTONOMOUS_ACTUATION = true;
+
+    // Timed mock scenario for automatic control validation.
+    const unsigned long MOCK_NORMAL_PHASE_MS = 20000; // first 20 seconds normal
+    unsigned long mockScenarioStartAt = 0;
+    bool mockHighRiskAnnounced = false;
 
     // --- Hardware Definitions ---
     #define ONE_WIRE_BUS 19     // DS18B20 Data Pin (ESP32-S3 mapping)
@@ -422,23 +427,41 @@
 
     void generateMockReadings()
     {
-        // Keep readings in normal bands for manual actuator testing.
-        temperature = random(180, 240) / 10.0;        // 18.0 to 24.0 C
-        turbidityNTU = random(5, 90) / 10.0;          // 0.5 to 9.0 NTU
-        turbidityVoltage = random(220, 290) / 100.0;  // 2.20 to 2.90 V
+        unsigned long elapsed = millis() - mockScenarioStartAt;
+        bool highRiskPhase = elapsed >= MOCK_NORMAL_PHASE_MS;
+
+        if (!highRiskPhase) {
+            // Phase 1: normal baseline (first 20 seconds)
+            temperature = random(180, 240) / 10.0;        // 18.0 to 24.0 C
+            turbidityNTU = random(5, 90) / 10.0;          // 0.5 to 9.0 NTU
+            turbidityVoltage = random(220, 290) / 100.0;  // 2.20 to 2.90 V
+            dissolvedOxygenValue = random(55, 85) / 10.0; // 5.5 to 8.5 mg/L
+            dissolvedOxygenVoltage = random(150, 240) / 100.0;
+            phValue = random(70, 85) / 10.0;              // 7.0 to 8.5
+            ecValue = random(900, 1400) / 1000.0;         // 0.9 to 1.4 ms/cm
+            probioticLevelPercentage = random(55, 96);
+        } else {
+            // Phase 2: forced high-risk profile
+            if (!mockHighRiskAnnounced) {
+                mockHighRiskAnnounced = true;
+                Serial.println(F("[MOCK TEST] Switched to HIGH-RISK scenario after 20 seconds."));
+            }
+
+            temperature = random(315, 350) / 10.0;        // 31.5 to 35.0 C
+            turbidityNTU = random(1100, 1800) / 10.0;     // 110.0 to 180.0 NTU
+            turbidityVoltage = random(70, 120) / 100.0;   // lower clarity voltage
+            dissolvedOxygenValue = random(8, 18) / 10.0;  // 0.8 to 1.8 mg/L
+            dissolvedOxygenVoltage = random(50, 90) / 100.0;
+            phValue = random(92, 100) / 10.0;             // 9.2 to 10.0
+            ecValue = random(2300, 3000) / 1000.0;        // 2.3 to 3.0 ms/cm
+            probioticLevelPercentage = random(35, 75);
+        }
+
         turbidityRaw = (int)((turbidityVoltage / 3.3) * 4095.0);
-
-        dissolvedOxygenValue = random(55, 85) / 10.0; // 5.5 to 8.5 mg/L
-        dissolvedOxygenVoltage = random(150, 240) / 100.0; // 1.50 to 2.40 V
-
-        phValue = random(70, 85) / 10.0;              // 7.0 to 8.5
-        ecValue = random(900, 1400) / 1000.0;         // 0.9 to 1.4 ms/cm
 
         // Keep mock ADC voltages populated for calibration/debug style prints.
         phVoltage = random(120, 280) / 100.0;
         ecVoltage = random(120, 280) / 100.0;
-
-        probioticLevelPercentage = random(55, 96);    // keep tank level healthy
     }
 
     bool fetchActuatorCommandForId(const String &targetId)
@@ -1027,6 +1050,7 @@
         delay(1000);
         EEPROM.begin(64);
         randomSeed((uint32_t)(esp_random() ^ micros()));
+        mockScenarioStartAt = millis();
 
         Serial.println(F("\n╔═══════════════════════════════════════╗"));
         Serial.println(F("║ PhycoSense Prototype (Full Sensors)   ║"));

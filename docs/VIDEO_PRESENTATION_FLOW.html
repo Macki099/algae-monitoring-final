@@ -215,6 +215,51 @@
       color: var(--muted);
     }
 
+    .script-flow {
+      margin-top: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .script-item {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      animation: fadeUp 700ms ease both;
+    }
+
+    .script-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .script-title {
+      font-family: "Fraunces", serif;
+      font-size: 1.02rem;
+      color: var(--ink);
+    }
+
+    .script-time {
+      font-size: 0.84rem;
+      color: var(--muted);
+      background: #eef6f3;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-weight: 700;
+    }
+
+    .script-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
     @keyframes rise {
       from {
         opacity: 0;
@@ -266,7 +311,7 @@
           <span>Total Runtime</span>
         </div>
         <div class="stat">
-          <strong>18</strong>
+          <strong>19</strong>
           <span>Main Scenes</span>
         </div>
         <div class="stat">
@@ -391,7 +436,7 @@
               <td><span class="scene-id">S7</span> <span class="pill">Hardware</span></td>
               <td>2:35-3:00</td>
               <td>25s</td>
-              <td>Close-up B-roll: ESP32, pH, turbidity, EC, dissolved oxygen, temperature, relay/actuator components.</td>
+              <td>Close-up B-roll: ESP32, pH, turbidity, EC, dissolved oxygen, temperature, plus two actuator paths: aeration and pump control.</td>
               <td>
                 "The hardware stack includes an ESP32 microcontroller with water-quality sensing modules,
                 plus actuator control support for intervention workflows."
@@ -443,19 +488,31 @@
             </tr>
             <tr>
               <td><span class="scene-id">S12</span> <span class="pill">Dashboard</span></td>
-              <td>5:15-5:55</td>
-              <td>40s</td>
-              <td>Risk panel and actuator/control section with recommendation output.</td>
+              <td>5:15-5:45</td>
+              <td>30s</td>
+              <td>Risk panel and recommendation output with confidence values.</td>
               <td>
                 "Machine learning converts raw measurements into understandable risk categories,
-                allowing faster and more consistent intervention planning."
+                helping operators prioritize faster and more consistent intervention planning."
               </td>
               <td>"Risk prediction and response guidance"</td>
             </tr>
             <tr>
-              <td><span class="scene-id">S13</span> <span class="pill">Dashboard</span></td>
-              <td>5:55-6:30</td>
-              <td>35s</td>
+              <td><span class="scene-id">S13</span> <span class="pill">Actuator + PID</span></td>
+              <td>5:45-6:15</td>
+              <td>30s</td>
+              <td>Dedicated actuator screen: show both actuators (aeration and pump), plus PID target vs actual, control output, and manual override or relay trigger.</td>
+              <td>
+                "This segment demonstrates two actuator types and the control rule: aeration handles oxygen correction,
+                while the pump supports dosing flow. In this prototype, the aeration pump runs continuously,
+                while risk prediction primarily changes pump/dosing response intensity from normal support to aggressive mitigation."
+              </td>
+              <td>"Aeration: Always ON | Pump: Risk-Responsive"</td>
+            </tr>
+            <tr>
+              <td><span class="scene-id">S14</span> <span class="pill">Dashboard</span></td>
+              <td>6:15-6:45</td>
+              <td>30s</td>
               <td>Date filtering, historical review, and optional data export workflow.</td>
               <td>
                 "Beyond live monitoring, users can inspect historical windows and export records
@@ -464,8 +521,8 @@
               <td>"Operational transparency through records"</td>
             </tr>
             <tr>
-              <td><span class="scene-id">S14</span> <span class="pill">Architecture</span></td>
-              <td>6:30-7:05</td>
+              <td><span class="scene-id">S15</span> <span class="pill">Architecture</span></td>
+              <td>6:45-7:20</td>
               <td>35s</td>
               <td>Prototype architecture board: MCU, sensors, wireless link, backend, ML, storage, UI, actuators.</td>
               <td>
@@ -475,8 +532,8 @@
               <td>"Component architecture overview"</td>
             </tr>
             <tr>
-              <td><span class="scene-id">S15</span> <span class="pill">Flow</span></td>
-              <td>7:05-7:45</td>
+              <td><span class="scene-id">S16</span> <span class="pill">Flow</span></td>
+              <td>7:20-8:00</td>
               <td>40s</td>
               <td>Step-by-step data pipeline animation with callouts and arrows.</td>
               <td>
@@ -486,8 +543,8 @@
               <td>"Continuous sensing, continuous intelligence"</td>
             </tr>
             <tr>
-              <td><span class="scene-id">S16</span> <span class="pill">Scenario</span></td>
-              <td>7:45-8:35</td>
+              <td><span class="scene-id">S17</span> <span class="pill">Scenario</span></td>
+              <td>8:00-8:50</td>
               <td>50s</td>
               <td>Scenario montage: simulated parameter drift, alert visualization, recommended response path.</td>
               <td>
@@ -497,9 +554,9 @@
               <td>"Simulated incident response"</td>
             </tr>
             <tr>
-              <td><span class="scene-id">S17</span> <span class="pill">Roadmap</span></td>
-              <td>8:35-9:20</td>
-              <td>45s</td>
+              <td><span class="scene-id">S18</span> <span class="pill">Roadmap</span></td>
+              <td>8:50-9:25</td>
+              <td>35s</td>
               <td>Future montage: ruggedized casing, power optimization, multi-site rollout, mobile alerts.</td>
               <td>
                 "Current work is a validated prototype. Next steps include stronger field hardening,
@@ -508,9 +565,9 @@
               <td>"From prototype to production"</td>
             </tr>
             <tr>
-              <td><span class="scene-id">S18</span> <span class="pill">Closing</span></td>
-              <td>9:20-10:00</td>
-              <td>40s</td>
+              <td><span class="scene-id">S19</span> <span class="pill">Closing</span></td>
+              <td>9:25-10:00</td>
+              <td>35s</td>
               <td>Team shot, pond hero shot, acknowledgements, logo end card.</td>
               <td>
                 "PhycoSense demonstrates a practical direction for smarter, faster, and data-driven algae risk monitoring.
@@ -520,6 +577,330 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="card">
+        <h2>Long-Form Voice-Over Script (10:00 Full Narration)</h2>
+        <p>
+          Use this as your full speaking script for recording. Each block is aligned to the same scene IDs and timecodes above,
+          but written in long-form so your narration naturally fills the 10-minute target without rushing.
+        </p>
+      </div>
+
+      <div class="script-flow">
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S1</span>
+            <span class="script-title">Hook</span>
+            <span class="script-time">0:00-0:20</span>
+          </div>
+          <p>
+            Water quality does not fail all at once. It usually shifts in small steps that are easy to miss,
+            especially when observations are periodic and manual. A pond may look healthy on the surface,
+            but underneath, dissolved oxygen can drop, turbidity can rise, and stress can begin building for aquatic life.
+            The core challenge is timing: by the time people notice visible changes, the safe response window may already be smaller.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S2</span>
+            <span class="script-title">Traditional Manual Sampling</span>
+            <span class="script-time">0:20-0:50</span>
+          </div>
+          <p>
+            In many operations, water monitoring still starts with a person carrying bottles, checking one location at a time,
+            writing values on a sheet, and moving to the next point. This process is familiar and trusted,
+            but it has limits. It consumes labor, depends on schedule discipline, and leaves blind periods between sampling rounds.
+            If a spike happens outside the scheduled check, that event may not be captured in time.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S3</span>
+            <span class="script-title">Lab and Reporting Delay</span>
+            <span class="script-time">0:50-1:20</span>
+          </div>
+          <p>
+            After collection, samples are typically transported, tested, organized, and reported. Even when this process is done well,
+            it takes time. During that delay, real field conditions keep moving. This means the data used for decisions can already be old
+            when the decision is finally made. In risk-sensitive environments, stale information can lead to slow intervention,
+            overcorrection, or missed prevention opportunities.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S4</span>
+            <span class="script-title">Traditional vs PhycoSense</span>
+            <span class="script-time">1:20-1:50</span>
+          </div>
+          <p>
+            PhycoSense is designed to shift this model from periodic snapshots to continuous awareness.
+            Instead of waiting for the next manual round, the system reads and uploads values every five seconds.
+            Those readings appear as live cards and trend graphs, so users see both the current condition and where it is heading.
+            In short, PhycoSense turns monitoring from occasional checking into an always-on decision support flow.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S5</span>
+            <span class="script-title">Problem to Solution Bridge</span>
+            <span class="script-time">1:50-2:10</span>
+          </div>
+          <p>
+            The objective of this project is practical and direct: detect harmful trends earlier,
+            reduce uncertainty for operators, and provide clear guidance before conditions become critical.
+            The approach combines embedded sensing, cloud data handling, machine-learning risk interpretation,
+            and a dashboard interface built for quick reading under real operational pressure.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S6</span>
+            <span class="script-title">Pond Deployment Context</span>
+            <span class="script-time">2:10-2:35</span>
+          </div>
+          <p>
+            This prototype buoy demonstrates the field concept in a pond-like environment.
+            The physical assembly keeps the electronics positioned for stable operation while remaining practical to deploy by hand.
+            In this simulation setup, we focus on repeatable sensing cycles, data transmission reliability,
+            and clear verification that the platform remains stable on water during continuous monitoring.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S7</span>
+            <span class="script-title">Hardware Stack</span>
+            <span class="script-time">2:35-3:00</span>
+          </div>
+          <p>
+            At the hardware level, PhycoSense is centered on an ESP32 microcontroller connected to key water-quality sensors:
+            temperature, pH, electrical conductivity, turbidity, and dissolved oxygen. These parameters are chosen because they
+            strongly influence algae behavior and pond health. The system also includes an actuator-ready control path,
+            making it possible to link risk interpretation with intervention mechanisms in later deployment phases.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S8</span>
+            <span class="script-title">System Architecture</span>
+            <span class="script-time">3:00-3:30</span>
+          </div>
+          <p>
+            The architecture follows a clear data pipeline. Sensor readings are captured on-device,
+            transmitted to a Node.js and Express backend, stored for historical access, and forwarded to a Python ML service.
+            The ML layer returns a risk level, confidence score, and suggested action.
+            That output is then presented in the dashboard so users can move from raw measurements to interpretable insights.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S9</span>
+            <span class="script-title">Field Simulation Sequence</span>
+            <span class="script-time">3:30-4:00</span>
+          </div>
+          <p>
+            This sequence shows the practical deployment routine, from carrying the unit,
+            to controlled water release, to stability confirmation after placement.
+            Operationally, these steps matter because stable float behavior and consistent positioning support better readings.
+            We also validate that communication remains intact once the device is in place,
+            ensuring the live stream can continue without manual handling.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S10</span>
+            <span class="script-title">Authentication and Access</span>
+            <span class="script-time">4:00-4:35</span>
+          </div>
+          <p>
+            On the application side, access is managed through device-key authentication.
+            Each key maps to a specific deployment unit, allowing users to enter quickly and view the right feed.
+            After validation, the dashboard opens with the latest readings and selectable device context.
+            This model keeps onboarding simple while preserving traceability between physical devices and cloud records.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S11</span>
+            <span class="script-title">Live Metrics and Trends</span>
+            <span class="script-time">4:35-5:15</span>
+          </div>
+          <p>
+            The dashboard is built for fast interpretation. Live cards show current parameter values,
+            while line charts show movement over time. This dual view helps users avoid a common mistake:
+            assuming a value is safe based on one moment alone. A parameter can still be in range but moving rapidly toward danger.
+            Trend visibility enables earlier and more confident operational decisions.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S12</span>
+            <span class="script-title">Risk Assessment and Guidance</span>
+            <span class="script-time">5:15-5:45</span>
+          </div>
+          <p>
+            Raw sensor data is useful, but interpretation speed is equally important.
+            The machine-learning module converts combined parameter patterns into risk labels such as Normal,
+            Moderate, and High. It also provides confidence values and action-oriented guidance.
+            This does not replace expert judgment. Instead, it provides a consistent baseline signal that helps teams prioritize
+            attention and respond with less delay.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S13</span>
+            <span class="script-title">PID and Actuator Demonstration</span>
+            <span class="script-time">5:45-6:15</span>
+          </div>
+          <p>
+            This is the dedicated control segment and an important technical detail for evaluation.
+            We explicitly show that the system has two actuator types: an aeration actuator and a pump actuator.
+            Aeration is used for oxygen correction, while the pump is used for dosing flow support.
+            In the demonstrated setup, the aeration pump remains continuously running regardless of prediction level.
+            The risk prediction is used to adjust intervention behavior on the dosing or pump side,
+            where moderate conditions apply controlled support and high-risk conditions escalate to stronger mitigation.
+            In this demo flow, you can show this transition in the actuator panel using target-versus-measured values,
+            then point to the risk-based response change while clarifying that baseline aeration remains active.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S14</span>
+            <span class="script-title">History and Export Workflow</span>
+            <span class="script-time">6:15-6:45</span>
+          </div>
+          <p>
+            Beyond live monitoring, the platform supports historical review with date-range filtering and export workflows.
+            This is essential for reporting and analysis because teams need to compare periods,
+            validate intervention impact, and document environmental behavior over time.
+            Exportable records also make collaboration easier between technical staff, managers,
+            and researchers who may use different tools for deeper analysis.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S15</span>
+            <span class="script-title">Integrated Prototype Components</span>
+            <span class="script-time">6:45-7:20</span>
+          </div>
+          <p>
+            This component view emphasizes that PhycoSense is not just a sensor, and not just a dashboard.
+            It is an integrated stack where each layer supports the next: device sensing,
+            connectivity, backend orchestration, database persistence, machine-learning inference,
+            and operator-facing visualization. The strength of the solution is in that integration,
+            where data remains connected from capture to final decision.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S16</span>
+            <span class="script-title">Five-Second Data Cycle</span>
+            <span class="script-time">7:20-8:00</span>
+          </div>
+          <p>
+            The operational loop runs on a repeated cycle of roughly five seconds.
+            First, the firmware reads all active sensors. Next, the payload is formatted and sent to the backend API.
+            Then prediction is requested from the ML service, results are stored, and the interface updates.
+            Repeating this cycle continuously produces a near-real-time system view,
+            while preserving enough history for context and trend-based interpretation.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S17</span>
+            <span class="script-title">Simulated Incident Response</span>
+            <span class="script-time">8:00-8:50</span>
+          </div>
+          <p>
+            In this simulated scenario, multiple indicators begin drifting toward risky levels.
+            As the trends continue, dashboard emphasis increases, risk labeling escalates,
+            and the recommendation panel guides the response path. This illustrates the key benefit of continuous monitoring:
+            operators do not wait for a single alarming number. They detect progression early,
+            act with context, and reduce the chance of reactive last-minute decisions.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S18</span>
+            <span class="script-title">Roadmap and Scale</span>
+            <span class="script-time">8:50-9:25</span>
+          </div>
+          <p>
+            PhycoSense is a validated prototype, and the roadmap focuses on production readiness.
+            Planned improvements include stronger field casing for longer outdoor exposure,
+            power optimization for longer autonomous runtime, and improved network resilience.
+            Future expansion also targets multi-site deployments, centralized fleet monitoring,
+            and broader notification channels so teams can react from desktop and mobile contexts.
+          </p>
+        </article>
+
+        <article class="script-item">
+          <div class="script-head">
+            <span class="scene-id">S19</span>
+            <span class="script-title">Closing Statement</span>
+            <span class="script-time">9:25-10:00</span>
+          </div>
+          <p>
+            To conclude, PhycoSense demonstrates a realistic path toward smarter algae risk monitoring.
+            It combines continuous field sensing, cloud-connected processing, machine-learning interpretation,
+            and accessible visualization in one practical workflow. The result is not only more data,
+            but better timing and clearer decisions. Thank you for watching this presentation,
+            and we hope this work supports safer, faster, and more reliable water-quality management.
+          </p>
+        </article>
+      </div>
+
+      <div class="card" style="margin-top: 12px;">
+        <h3>Optional Extension Lines (Add 30-90 Seconds If Needed)</h3>
+        <p class="note">
+          Use any of these short fillers between scenes if your pacing is naturally fast.
+          Each item is around 12-18 seconds when spoken clearly.
+        </p>
+        <ul>
+          <li>
+            "A key advantage of this workflow is consistency. The same sensing cycle repeats at regular intervals,
+            which reduces human variability in monitoring frequency and supports better comparison across time."
+          </li>
+          <li>
+            "Another practical benefit is traceability. Every reading, prediction, and timestamp can be reviewed later,
+            which improves transparency when teams evaluate what happened before, during, and after a risk event."
+          </li>
+          <li>
+            "For operators, interface clarity is critical. A dashboard should not only display numbers,
+            but help users focus attention quickly on what changed, how fast it changed, and what to do next."
+          </li>
+          <li>
+            "From a system perspective, modular design makes improvement easier.
+            Sensors, backend services, and the machine-learning model can be refined without redesigning the entire platform."
+          </li>
+          <li>
+            "In deployment planning, reliability is not one feature, but a set of practices:
+            stable hardware, dependable connectivity, clean data logging, and clear escalation paths for response."
+          </li>
+          <li>
+            "As this work scales, the long-term goal is a network of monitored sites where each unit contributes to a larger view,
+            supporting smarter environmental management through timely, comparable, and actionable information."
+          </li>
+        </ul>
       </div>
     </section>
 
@@ -541,7 +922,9 @@
           <li>Switch between device views</li>
           <li>Show live value updates and charts</li>
           <li>Open risk assessment module</li>
-          <li>Show actuator/control section if available</li>
+          <li>Show two actuator cards clearly: aeration and pump</li>
+          <li>Show dedicated PID panel with setpoint vs measured value</li>
+          <li>Show actuator/control toggle or relay command event</li>
           <li>Show export data or date-range filter</li>
         </ul>
       </article>
@@ -560,7 +943,7 @@
         <p class="note">
           Keep the full cut at exactly 10:00 by locking scene durations first,
           then adjusting narration speed to 130-140 words per minute.
-          If you exceed 10:00, trim Scene S16 by 5-10 seconds and Scene S17 by 5 seconds.
+          If you exceed 10:00, trim Scene S17 by 5-10 seconds and Scene S18 by 5 seconds.
         </p>
       </article>
     </section>
